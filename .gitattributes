@@ -1,20 +1,21 @@
 * -text
-*.iml text -binary
-*.axl text -binary
-*.c text -binary
-*.css text -binary
-*.html text -binary
-*.java text -binary
-*.js text -binary
-*.jsp text -binary
-*.properties text -binary
-*.txt text -binary
-*.xml text -binary
-*.xsd text -binary
-*.rb text -binary
-*.haml text -binary
-*.rake text -binary
-*.sass text -binary
-*.yml text -binary
-*.rhtml text -binary
+*.iml text -crlf -binary
+*.axl text -crlf -binary
+*.c text -crlf -binary
+*.css text -crlf -binary
+*.html text -crlf -binary
+*.java text -crlf -binary
+*.js text -crlf -binary
+*.json text -crlf -binary
+*.jsp text -crlf -binary
+*.properties text -crlf -binary
+*.txt text -crlf -binary
+*.xml text -crlf -binary
+*.xsd text -crlf -binary
+*.rb text -crlf -binary
+*.haml text -crlf -binary
+*.rake text -crlf -binary
+*.sass text -crlf -binary
+*.yml text -crlf -binary
+*.rhtml text -crlf -binary
 *.jar binary
