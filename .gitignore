@@ -1,0 +1,21 @@
+# Ignore vagrant files across the repos
+/.vagrant
+
+# Ignore any keys in the chef directory
+/.chef/*.pem
+/.chef/*.pub
+
+# Ignore IDEA project files
+/*.iml
+/*.ipr
+/*.iws
+
+# Local setup scripts
+/setup.*
+
+# Ignore temporary WIP files
+/tmp
+
+/.bundle
+/bin
+/Gemfile.lock
