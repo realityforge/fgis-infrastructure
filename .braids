@@ -1,0 +1,9 @@
+--- 
+cookbooks/locale: 
+  branch: master
+  lock: ae51743fe82510b5e9750d9e8eda4782c9d97ef0
+  remote: master/braid/cookbooks/locale
+  revision: ae51743fe82510b5e9750d9e8eda4782c9d97ef0
+  squashed: true
+  type: git
+  url: git://github.com/heavywater/chef-locale.git
