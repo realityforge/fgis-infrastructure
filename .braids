@@ -7,3 +7,10 @@ cookbooks/locale:
   squashed: true
   type: git
   url: git://github.com/heavywater/chef-locale.git
+cookbooks/postgresql: 
+  branch: master
+  remote: master/braid/cookbooks/postgresql
+  revision: 5d7f69533db0e36bcfe3d92f12fb25ef888fdeb7
+  squashed: true
+  type: git
+  url: git://github.com/opscode-cookbooks/postgresql.git
