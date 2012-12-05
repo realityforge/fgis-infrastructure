@@ -25,7 +25,8 @@ NETWORK_PREFIX = "192.168.77"
 boxen = {
   :gis => {
     :description => "GIS Node",
-    :recipes => ['recipe[locale::default]'],
+    :recipes => [],
+    :roles => ['fgis_server'],
     :ipaddress => "#{NETWORK_PREFIX}.#{next_ip}",
     :forwards => {22 => ssh_port},
   }
@@ -63,7 +64,7 @@ Vagrant::Config.run do |global_config|
         config.vm.forward_port guest_port, host_port, forward_options
       end if options[:forwards]
 
-      if options[:recipes] && options[:recipes] != []
+      if (options[:recipes] && options[:recipes] != []) || (options[:roles] && options[:roles] != [])
         config.vm.provision :shell, :inline => <<CMD
 if [[ -x /opt/chef/bin/chef-client ]]
 then
@@ -81,6 +82,9 @@ CMD
           options[:recipes].each do |recipe|
             chef.add_recipe(recipe)
           end if options[:recipes]
+          options[:roles].each do |role|
+            chef.add_role(role)
+          end if options[:roles]
         end
       end
     end
