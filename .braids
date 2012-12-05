@@ -21,6 +21,13 @@ cookbooks/openssl:
   squashed: true
   type: git
   url: git://github.com/opscode-cookbooks/openssl.git
+cookbooks/postgis: 
+  branch: master
+  remote: master/braid/cookbooks/postgis
+  revision: d70b14fe018287f21b2e3d16f754e7bf3c6e30f0
+  squashed: true
+  type: git
+  url: git@github.com:realityforge/chef-postgis.git
 cookbooks/postgresql: 
   branch: master
   remote: master/braid/cookbooks/postgresql
