@@ -12,6 +12,6 @@
 # limitations under the License.
 #
 
-include_recipe "apt::default"
-include_recipe "locale::default"
-include_recipe "postgresql::server"
+include_recipe 'apt::default'
+include_recipe 'locale::default'
+include_recipe 'postgis::default'
