@@ -20,14 +20,16 @@ def local_cache(basebox_name)
   cache_dir
 end
 
-NETWORK_PREFIX = "192.168.77"
+def network_prefix
+  "192.168.77"
+end
 
 boxen = {
   :gis => {
     :description => "GIS Node",
     :recipes => [],
     :roles => ['fgis_server'],
-    :ipaddress => "#{NETWORK_PREFIX}.#{next_ip}",
+    :ipaddress => "#{network_prefix}.#{next_ip}",
     :forwards => {22 => ssh_port},
   }
 }
