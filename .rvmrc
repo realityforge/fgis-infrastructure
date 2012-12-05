@@ -5,7 +5,7 @@ cat <<EOF
 *****************************************************
 EOF
 
-DIR="$( realpath "$(dirname "${BASH_SOURCE[0]}")")"
+DIR=`pwd`
 
 if [ -f "${DIR}/.ruby_version" ]; then
   ruby_string=${RVM_RUBY_NAME-`cat "${DIR}/.ruby_version" 2>/dev/null`}
