@@ -81,6 +81,7 @@ CMD
           chef.cookbooks_path = ["cookbooks"]
           chef.roles_path = "roles"
           chef.data_bags_path = "data_bags"
+          chef.json = options[:json] if options[:json]
           options[:recipes].each do |recipe|
             chef.add_recipe(recipe)
           end if options[:recipes]
