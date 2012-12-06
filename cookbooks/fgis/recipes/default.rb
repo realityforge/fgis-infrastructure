@@ -35,3 +35,31 @@ node.override['postgresql']['config']['listen_addresses'] = '0.0.0.0'
 include_recipe 'apt::default'
 include_recipe 'locale::default'
 include_recipe 'postgis::default'
+
+psql_user "fgis" do
+  host node['fqdn']
+  port node['postgresql']['config']['port']
+  admin_username 'postgres'
+  admin_password node['postgresql']['password']['postgres']
+  password 'secret'
+end
+
+psql_database "fgis_db" do
+  host node['fqdn']
+  port node['postgresql']['config']['port']
+  admin_username 'postgres'
+  admin_password node['postgresql']['password']['postgres']
+  owner 'fgis'
+  template 'template_postgis'
+end
+
+psql_permission "fgis => all" do
+  host node['fqdn']
+  port node['postgresql']['config']['port']
+  admin_username 'postgres'
+  admin_password node['postgresql']['password']['postgres']
+  username 'fgis'
+  database 'fgis_db'
+  permissions ['ALL']
+end
+
