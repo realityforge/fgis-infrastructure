@@ -30,7 +30,7 @@ boxen = {
     :recipes => [],
     :roles => ['fgis_server'],
     :ipaddress => "#{network_prefix}.#{next_ip}",
-    :forwards => {22 => ssh_port},
+    :forwards => {22 => ssh_port, 5432 => 5432},
   }
 }
 
