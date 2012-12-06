@@ -15,3 +15,4 @@
 override['locale']['lang'] = "en_AU.UTF-8"
 
 override['postgresql']['password']['postgres'] = 'Open_Sesame'
+override['postgresql']['config']['ssl'] = false
