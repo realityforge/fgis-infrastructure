@@ -24,6 +24,16 @@ def network_prefix
   "192.168.77"
 end
 
+require 'socket'
+
+local_ip_addresses =
+  Socket.
+    ip_address_list.
+    select{|a| a.ipv4? && !a.ipv4_loopback?}.
+    collect{|a| a.ip_address}.
+    select{|a| !(a =~ /^#{network_prefix.gsub('.',"\\.")}\..*/)}.
+    sort.uniq
+
 boxen = {
   :gis => {
     :description => "GIS Node",
@@ -31,6 +41,7 @@ boxen = {
     :roles => ['fgis_server'],
     :ipaddress => "#{network_prefix}.#{next_ip}",
     :forwards => {22 => ssh_port, 5432 => 5432},
+    :json => {:gis => {:app_server_addresses => local_ip_addresses}},
   }
 }
 

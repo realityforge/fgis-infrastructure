@@ -12,6 +12,26 @@
 # limitations under the License.
 #
 
+node.override['locale']['lang'] = "en_AU.UTF-8"
+
+pg_hba = [
+  {:type => 'local', :db => 'all', :user => 'postgres', :addr => nil, :method => 'ident'},
+  {:type => 'local', :db => 'all', :user => 'all', :addr => nil, :method => 'ident'},
+  {:type => 'host', :db => 'all', :user => 'all', :addr => '127.0.0.1/32', :method => 'md5'},
+  {:type => 'host', :db => 'all', :user => 'all', :addr => '127.0.0.1/32', :method => 'md5'},
+]
+
+if node['gis'] && node['gis']['app_server_addresses']
+  node['gis']['app_server_addresses'].each do |address|
+    pg_hba << {:type => 'host', :db => 'all', :user => 'all', :addr => "#{address}/8", :method => 'md5'}
+  end
+end
+
+node.override['postgresql']['pg_hba'] = pg_hba
+node.override['postgresql']['password']['postgres'] = 'Open_Sesame'
+node.override['postgresql']['config']['ssl'] = false
+node.override['postgresql']['config']['listen_addresses'] = '0.0.0.0'
+
 include_recipe 'apt::default'
 include_recipe 'locale::default'
 include_recipe 'postgis::default'
