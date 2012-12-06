@@ -42,3 +42,10 @@ cookbooks/postgresql:
   squashed: true
   type: git
   url: git://github.com/opscode-cookbooks/postgresql.git
+cookbooks/psql: 
+  branch: master
+  remote: master/braid/cookbooks/psql
+  revision: 9125fd73bec8a863ce2c65582312c0c2c3b99cc0
+  squashed: true
+  type: git
+  url: git://github.com/realityforge/chef-psql.git
