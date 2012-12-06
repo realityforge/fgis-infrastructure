@@ -6,6 +6,13 @@ cookbooks/apt:
   squashed: true
   type: git
   url: git://github.com/opscode-cookbooks/apt.git
+cookbooks/cutlery: 
+  branch: master
+  remote: master/braid/cookbooks/cutlery
+  revision: 90c68b4464a0d4d3b7148fa64a1fd9e56951a6c2
+  squashed: true
+  type: git
+  url: git://github.com/realityforge/chef-cutlery.git
 cookbooks/locale: 
   branch: master
   lock: ae51743fe82510b5e9750d9e8eda4782c9d97ef0
