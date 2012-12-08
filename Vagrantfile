@@ -91,7 +91,6 @@ CMD
         config.vm.provision :chef_solo do |chef|
           chef.cookbooks_path = ["cookbooks"]
           chef.roles_path = "roles"
-          chef.data_bags_path = "data_bags"
           chef.json = options[:json] if options[:json]
           options[:recipes].each do |recipe|
             chef.add_recipe(recipe)
