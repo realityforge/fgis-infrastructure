@@ -63,3 +63,13 @@ psql_permission "fgis => all" do
   permissions ['ALL']
 end
 
+node.override['java']['oracle']['accept_oracle_download_terms'] = true
+node.override['java']['install_flavor'] = 'oracle'
+
+include_recipe 'java::default'
+
+node.override['glassfish']['base_dir'] = '/usr/local/glassfish'
+node.override['glassfish']['domains_dir'] = '/usr/local/glassfish/glassfish/domains'
+
+include_recipe 'authbind::default'
+include_recipe 'glassfish::attribute_driven_domain'
