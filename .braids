@@ -23,7 +23,7 @@ cookbooks/cutlery:
 cookbooks/glassfish: 
   branch: master
   remote: master/braid/cookbooks/glassfish
-  revision: 34883fb6eac54bce9efba8dec06ab4600e74c8e1
+  revision: d2b109c490ac92a51b07f7e4bb98bd98614aa1a6
   squashed: true
   type: git
   url: git://github.com/realityforge/chef-glassfish.git
