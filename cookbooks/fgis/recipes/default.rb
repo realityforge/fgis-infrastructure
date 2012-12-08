@@ -22,7 +22,7 @@ node.default['fgis']['database']['password'] = 'secret'
 
 include_recipe 'apt::default'
 
-node.override['locale']['lang'] = "en_AU.UTF-8"
+node.override['locale']['lang'] = 'en_AU.UTF-8'
 include_recipe 'locale::default'
 
 include_recipe 'fgis::_setup_database'
