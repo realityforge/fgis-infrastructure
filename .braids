@@ -13,6 +13,13 @@ cookbooks/cutlery:
   squashed: true
   type: git
   url: git://github.com/realityforge/chef-cutlery.git
+cookbooks/glassfish: 
+  branch: master
+  remote: master/braid/cookbooks/glassfish
+  revision: 34883fb6eac54bce9efba8dec06ab4600e74c8e1
+  squashed: true
+  type: git
+  url: git://github.com/realityforge/chef-glassfish.git
 cookbooks/locale: 
   branch: master
   lock: ae51743fe82510b5e9750d9e8eda4782c9d97ef0
