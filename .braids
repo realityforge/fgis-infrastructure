@@ -27,6 +27,13 @@ cookbooks/glassfish:
   squashed: true
   type: git
   url: git://github.com/realityforge/chef-glassfish.git
+cookbooks/java: 
+  branch: master
+  remote: master/braid/cookbooks/java
+  revision: 480d71459e960a2778eb12443a8ca63d638707be
+  squashed: true
+  type: git
+  url: https://github.com/opscode-cookbooks/java.git
 cookbooks/locale: 
   branch: master
   lock: ae51743fe82510b5e9750d9e8eda4782c9d97ef0
