@@ -40,8 +40,8 @@ boxen = {
     :recipes => [],
     :roles => ['fgis_server'],
     :ipaddress => "#{network_prefix}.#{next_ip}",
-    :forwards => {22 => ssh_port, 5432 => 5432},
-    :json => {:gis => {:app_server_addresses => local_ip_addresses}},
+    :forwards => {22 => ssh_port, 5432 => 5432, 80 => 8080, 8085 => 8085},
+    :json => {:fgis => {:app_server_addresses => local_ip_addresses}},
   }
 }
 

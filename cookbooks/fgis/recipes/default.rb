@@ -12,64 +12,24 @@
 # limitations under the License.
 #
 
-node.override['locale']['lang'] = "en_AU.UTF-8"
+# address of app server if it is on a different node
+node.default['fgis']['app_server_addresses'] = []
 
-pg_hba = [
-  {:type => 'local', :db => 'all', :user => 'postgres', :addr => nil, :method => 'ident'},
-  {:type => 'local', :db => 'all', :user => 'all', :addr => nil, :method => 'ident'},
-  {:type => 'host', :db => 'all', :user => 'all', :addr => '127.0.0.1/32', :method => 'md5'},
-  {:type => 'host', :db => 'all', :user => 'all', :addr => '127.0.0.1/32', :method => 'md5'},
-]
-
-if node['gis'] && node['gis']['app_server_addresses']
-  node['gis']['app_server_addresses'].each do |address|
-    pg_hba << {:type => 'host', :db => 'all', :user => 'all', :addr => "#{address}/8", :method => 'md5'}
-  end
-end
-
-node.override['postgresql']['pg_hba'] = pg_hba
-node.override['postgresql']['password']['postgres'] = 'Open_Sesame'
-node.override['postgresql']['config']['ssl'] = false
-node.override['postgresql']['config']['listen_addresses'] = '0.0.0.0'
+# postgis database configuration
+node.default['fgis']['database']['db_name'] = 'fgis_db'
+node.default['fgis']['database']['username'] = 'fgis'
+node.default['fgis']['database']['password'] = 'secret'
 
 include_recipe 'apt::default'
+
+node.override['locale']['lang'] = "en_AU.UTF-8"
 include_recipe 'locale::default'
-include_recipe 'postgis::default'
 
-psql_user "fgis" do
-  host node['fqdn']
-  port node['postgresql']['config']['port']
-  admin_username 'postgres'
-  admin_password node['postgresql']['password']['postgres']
-  password 'secret'
-end
-
-psql_database "fgis_db" do
-  host node['fqdn']
-  port node['postgresql']['config']['port']
-  admin_username 'postgres'
-  admin_password node['postgresql']['password']['postgres']
-  owner 'fgis'
-  template 'template_postgis'
-end
-
-psql_permission "fgis => all" do
-  host node['fqdn']
-  port node['postgresql']['config']['port']
-  admin_username 'postgres'
-  admin_password node['postgresql']['password']['postgres']
-  username 'fgis'
-  database 'fgis_db'
-  permissions ['ALL']
-end
+include_recipe 'fgis::_setup_database'
 
 node.override['java']['oracle']['accept_oracle_download_terms'] = true
 node.override['java']['install_flavor'] = 'oracle'
-
+node.override['java']['jdk_version'] = '7'
 include_recipe 'java::default'
 
-node.override['glassfish']['base_dir'] = '/usr/local/glassfish'
-node.override['glassfish']['domains_dir'] = '/usr/local/glassfish/glassfish/domains'
-
-include_recipe 'authbind::default'
-include_recipe 'glassfish::attribute_driven_domain'
+include_recipe 'fgis::_geoserver'
