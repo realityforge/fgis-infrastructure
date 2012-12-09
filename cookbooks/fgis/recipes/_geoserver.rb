@@ -36,12 +36,30 @@ test -f geoserver.war
   not_if { ::File.exists?("#{Chef::Config[:file_cache_path]}/geoserver.war") }
 end
 
-geo_data = "/srv/geoserver"
-directory geo_data do
+directory '/srv/geoserver' do
   owner node['glassfish']['user']
   group node['glassfish']['group']
-  mode 00700
+  mode 0700
   recursive true
+end
+
+package 'git'
+
+geo_data = '/srv/geoserver/data'
+git geo_data do
+  repository 'git://github.com/rhok-melbourne/fgis-geoserver.git'
+  reference 'master'
+  user node['glassfish']['user']
+  group node['glassfish']['group']
+  action :sync
+end
+
+template "#{geo_data}/security/users.properties" do
+  source 'users.properties.erb'
+  mode 0700
+  user node['glassfish']['user']
+  group node['glassfish']['group']
+  variables(:users => [['admin','geoserver','ROLE_ADMINISTRATOR']])
 end
 
 node.override['glassfish']['base_dir'] = '/usr/local/glassfish'
