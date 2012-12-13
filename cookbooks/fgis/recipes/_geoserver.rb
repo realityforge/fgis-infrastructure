@@ -114,6 +114,10 @@ node.override['glassfish']['domains']['geo'] =
       'geoserver' => {
         'url' => "file://#{Chef::Config[:file_cache_path]}/geoserver.war",
         'context_root' => '/geoserver'
+      },
+      'fgis' => {
+        'url' => 'https://github.com/realityforge/repository/raw/master/org/realityforge/fgis/fgis/0.1/fgis-0.1.war',
+        'context_root' => '/fgis'
       }
     },
   }
