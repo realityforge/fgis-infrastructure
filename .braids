@@ -2,7 +2,7 @@
 cookbooks/apt: 
   branch: master
   remote: master/braid/cookbooks/apt
-  revision: b0ea5e8ab68236b1f165470c9496bc6648f417c1
+  revision: ea834265247cc8b507ac37ab3a34a9b44ed27a11
   squashed: true
   type: git
   url: git://github.com/opscode-cookbooks/apt.git
