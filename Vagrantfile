@@ -57,7 +57,7 @@ Vagrant::Config.run do |global_config|
       config.vm.box_url = options[:box_url] || "http://vagrant.sensuapp.org/ubuntu-1204-amd64.box"
 
       customizations = []
-      customizations += ["--name", "#{key}: #{options[:description]}"]
+      customizations += ["--name", "#{key} - #{options[:description]}"]
       customizations += ["--memory", options[:memory].to_s] if options[:memory]
       customizations += ["--cpus", options[:cpus].to_s] if options[:cpus]
 
