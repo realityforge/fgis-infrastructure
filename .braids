@@ -55,7 +55,7 @@ cookbooks/postgis:
   revision: 81897fe7c9af96b1b3e195c5f4a17dad8ff5df17
   squashed: true
   type: git
-  url: git@github.com:realityforge/chef-postgis.git
+  url: git://github.com/realityforge/chef-postgis.git
 cookbooks/postgresql: 
   branch: master
   remote: master/braid/cookbooks/postgresql
