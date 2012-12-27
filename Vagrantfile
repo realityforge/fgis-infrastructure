@@ -38,6 +38,7 @@ boxen = {
   :gis => {
     :description => "GIS Node",
     :recipes => [],
+    :memory => 700,
     :roles => ['fgis_server'],
     :ipaddress => "#{network_prefix}.#{next_ip}",
     :forwards => {22 => ssh_port, 5432 => 5432, 80 => 8080, 8085 => 8085},

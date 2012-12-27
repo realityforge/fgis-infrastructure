@@ -68,9 +68,9 @@ node.override['glassfish']['domains_dir'] = '/usr/local/glassfish/glassfish/doma
 node.override['glassfish']['domains']['geo'] =
   {
     'config' => {
-      'min_memory' => 1024,
-      'max_memory' => 1548,
-      'max_perm_size' => 400,
+      'min_memory' => 412,
+      'max_memory' => 412,
+      'max_perm_size' => 200,
       'port' => 80,
       'admin_port' => 8085,
       'max_stack_size' => 200,
