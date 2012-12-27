@@ -71,7 +71,7 @@ node.override['glassfish']['domains']['geo'] =
   {
     'config' => {
       'min_memory' => 412,
-      'max_memory' => 412,
+      'max_memory' => 512,
       'max_perm_size' => 200,
       'port' => 80,
       'admin_port' => 8085,
