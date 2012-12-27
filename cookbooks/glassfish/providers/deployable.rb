@@ -17,33 +17,9 @@ require 'digest/sha1'
 
 include Chef::Asadmin
 
-def generate_plan_digest()
-  require 'digest/md5'
-
-  plan_digest = ::Digest::MD5.new
-  content = new_resource.descriptors.keys.sort.collect do |key|
-    digest = ::Digest::MD5.new
-    ::File.foreach(new_resource.descriptors[key]) do |s|
-      digest.update(s)
-    end
-    "#{key}=#{digest.hexdigest}"
-  end.join("\n")
-  plan_digest.update(content)
-  plan_digest.hexdigest
-end
-
 notifying_action :deploy do
-  version_file = "#{node['glassfish']['domains_dir']}/#{new_resource.domain_name}_#{new_resource.component_name}.VERSION"
   version_value = new_resource.version ? new_resource.version.to_s : Digest::SHA1.hexdigest(new_resource.url)
   base_cache_name = "#{Chef::Config[:file_cache_path]}/#{new_resource.domain_name}_#{new_resource.component_name}_#{version_value}"
-
-  file version_file do
-    owner node['glassfish']['user']
-    group node['glassfish']['group']
-    mode "0600"
-    content version_value
-    action :nothing
-  end
 
   cached_package_filename = nil
   if new_resource.url =~ /^file\:\/\//
@@ -60,44 +36,61 @@ notifying_action :deploy do
   end
 
   deployment_plan = nil
+  plan_digest = nil
   unless new_resource.descriptors.empty?
-    deployment_plan = "#{base_cache_name}.deployment-plan.jar"
+    plan_digest = Asadmin.generate_component_plan_digest(new_resource.descriptors)
+    deployment_plan = "#{base_cache_name}-deployment-plan.#{plan_digest}.jar"
+    deployment_plan_dir = "#{Chef::Config[:file_cache_path]}/#{::File.basename(deployment_plan, '.jar')}"
 
-    bash deployment_plan do
-      deployment_plan_dir = "#{Chef::Config[:file_cache_path]}/#{::File.basename(deployment_plan, '.jar')}"
-      command = []
-      command << "rm -rf #{deployment_plan_dir}"
-      command << "mkdir -p #{deployment_plan_dir}"
-      command << "cd #{deployment_plan_dir}"
+    bash "Create #{deployment_plan}" do
+      command = <<-CMD
+rm -rf #{deployment_plan_dir}
+mkdir -p #{deployment_plan_dir}
+cd #{deployment_plan_dir}
+      CMD
       new_resource.descriptors.collect do |key, file|
         if ::File.dirname(key) != ''
-          command << "mkdir -p #{::File.dirname(key)}"
+          command << "mkdir -p #{::File.dirname(key)}\n"
         end
-        command << "cp #{file} #{key}"
+        command << "cp #{file} #{key}\n"
       end
-      command << "jar -cf #{deployment_plan} ."
-      command << "chown #{node['glassfish']['user']}:#{node['glassfish']['group']} #{deployment_plan}"
-      code command.join(" &&\n ")
-      action :nothing
-    end
-
-    file "#{node['glassfish']['domains_dir']}/#{new_resource.domain_name}_#{new_resource.component_name}.config.VERSION" do
-      owner node['glassfish']['user']
-      group node['glassfish']['group']
-      mode "0600"
-      action :create
-      content generate_plan_digest()
-      notifies :run, resources(:bash => deployment_plan), :immediately
+      command << <<-CMD
+jar -cf #{deployment_plan} .
+chown #{node['glassfish']['user']}:#{node['glassfish']['group']} #{deployment_plan}
+chmod 0700 #{deployment_plan}
+rm -rf #{deployment_plan_dir}
+test -f #{deployment_plan}
+      CMD
+      code command
+      not_if { ::File.exists?(deployment_plan) }
     end
   end
 
-  bash "deploy application #{new_resource.component_name}" do
-    not_if "#{asadmin_command('list-applications')} #{new_resource.target} | grep -q -- '#{new_resource.component_name} ' && grep -q '^#{version_value}$' #{version_file}"
+  versioned_component_name = Asadmin.versioned_component_name(new_resource.component_name, new_resource.version, new_resource.url, new_resource.descriptors)
+
+  test_suffix = nil
+  version_file = nil
+
+  # Oh the pain. OSGi modules are not version suffixed so we need to store the version on the filesystem. Joy for feature parity.
+  if new_resource.type.to_s == 'osgi'
+    version_file = "#{node['glassfish']['domains_dir']}/#{new_resource.domain_name}_#{new_resource.component_name}.VERSION"
+    file version_file do
+      owner node['glassfish']['user']
+      group node['glassfish']['group']
+      mode "0600"
+      content versioned_component_name
+      action :nothing
+    end
+    test_suffix = "| grep -q '^#{versioned_component_name}$' #{version_file}"
+  end
+
+  bash "deploy application #{versioned_component_name}" do
+    not_if "#{asadmin_command('list-applications')} #{new_resource.target} | grep -q -- '#{versioned_component_name} '#{test_suffix}"
 
     command = []
     command << "deploy"
     command << asadmin_target_flag
-    command << "--name" << new_resource.component_name
+    command << "--name" << versioned_component_name
     command << "--enabled=#{new_resource.enabled}"
     command << "--upload=true"
     command << "--force=true"
@@ -118,7 +111,9 @@ notifying_action :deploy do
     user node['glassfish']['user']
     group node['glassfish']['group']
     code asadmin_command(command.join(' '))
-    notifies :create, resources(:file => version_file), :immediately
+    if new_resource.type.to_s == 'osgi'
+      notifies :create, resources(:file => version_file), :immediately
+    end
   end
 end
 
