@@ -21,7 +21,7 @@ def local_cache(basebox_name, cache_type = 'apt')
 end
 
 def network_prefix
-  "192.168.77"
+  '192.168.77'
 end
 
 require 'socket'
@@ -36,10 +36,10 @@ local_ip_addresses =
 
 boxen = {
   :gis => {
-    :description => "GIS Node",
+    :description => 'GIS Node',
     :recipes => [],
     :memory => 700,
-    :roles => ['fgis_server'],
+    :roles => %w(fgis_server),
     :ipaddress => "#{network_prefix}.#{next_ip}",
     :forwards => {22 => ssh_port, 5432 => 5432, 80 => 8080, 8085 => 8085},
     :json => {:fgis => {:app_server_addresses => local_ip_addresses}},
@@ -49,25 +49,25 @@ boxen = {
 Vagrant::Config.run do |global_config|
   boxen.each_pair do |key, options|
     global_config.vm.define key.to_s do |config|
-      config.vm.boot_mode = ENV["ENABLE_GUI"] == 'true' ? :gui : :headless
+      config.vm.boot_mode = ENV['ENABLE_GUI'] == 'true' ? :gui : :headless
       config.vm.host_name = "#{key.to_s.gsub('_', '-')}-vm"
       config.vm.network :hostonly, options[:ipaddress]
 
-      config.vm.box = options[:box_key] || "ubuntu-1204-amd64"
-      config.vm.box_url = options[:box_url] || "http://vagrant.sensuapp.org/ubuntu-1204-amd64.box"
+      config.vm.box = options[:box_key] || 'ubuntu-1204-amd64'
+      config.vm.box_url = options[:box_url] || 'http://vagrant.sensuapp.org/ubuntu-1204-amd64.box'
 
       customizations = []
-      customizations += ["--name", "#{key} - #{options[:description]}"]
-      customizations += ["--memory", options[:memory].to_s] if options[:memory]
-      customizations += ["--cpus", options[:cpus].to_s] if options[:cpus]
+      customizations += ['--name', "#{key} - #{options[:description]}"]
+      customizations += ['--memory', options[:memory].to_s] if options[:memory]
+      customizations += ['--cpus', options[:cpus].to_s] if options[:cpus]
 
-      config.vm.customize(["modifyvm", :id,] + customizations) unless customizations.empty?
+      config.vm.customize(['modifyvm', :id,] + customizations) unless customizations.empty?
 
-      config.vm.share_folder "v-cache",
-                             "/var/cache/apt/archives/",
+      config.vm.share_folder 'v-cache',
+                             '/var/cache/apt/archives/',
                              local_cache(config.vm.box)
-      config.vm.share_folder "chef-cache",
-                             "/var/chef-cache",
+      config.vm.share_folder 'chef-cache',
+                             '/var/chef-cache',
                              local_cache(config.vm.box, 'chef')
       options[:shares].each_pair do |guest_directory, host_directory|
         config.vm.share_folder guest_directory.gsub('/', '-'), guest_directory, host_directory
@@ -92,9 +92,9 @@ else
 fi
 CMD
         config.vm.provision :chef_solo do |chef|
-          chef.cookbooks_path = ["cookbooks"]
-          chef.roles_path = "roles"
-          chef.provisioning_path = "/var/chef-cache"
+          chef.cookbooks_path = %w(cookbooks)
+          chef.roles_path = 'roles'
+          chef.provisioning_path = '/var/chef-cache'
           chef.json = options[:json] if options[:json]
           options[:recipes].each do |recipe|
             chef.add_recipe(recipe)
