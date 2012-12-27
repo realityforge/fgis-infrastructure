@@ -13,8 +13,8 @@ def next_forward_port
   $current_port_forward_address += 1
 end
 
-def local_cache(basebox_name)
-  cache_dir = Vagrant::Environment.new.home_path.join('cache', 'apt', basebox_name)
+def local_cache(basebox_name, cache_type = 'apt')
+  cache_dir = Vagrant::Environment.new.home_path.join('cache', cache_type, basebox_name)
   partial_dir = cache_dir.join('partial')
   FileUtils.mkdir_p partial_dir unless partial_dir.exist?
   cache_dir
@@ -66,7 +66,9 @@ Vagrant::Config.run do |global_config|
       config.vm.share_folder "v-cache",
                              "/var/cache/apt/archives/",
                              local_cache(config.vm.box)
-
+      config.vm.share_folder "chef-cache",
+                             "/var/chef-cache",
+                             local_cache(config.vm.box, 'chef')
       options[:shares].each_pair do |guest_directory, host_directory|
         config.vm.share_folder guest_directory.gsub('/', '-'), guest_directory, host_directory
       end if options[:shares]
