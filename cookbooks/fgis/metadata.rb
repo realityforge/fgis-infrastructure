@@ -12,17 +12,17 @@
 # limitations under the License.
 #
 
-maintainer       "Peter Donald"
-maintainer_email "peter@realityforge.org"
-license          "Apache 2.0"
-description      "Role cookbook for configuring a Fire Ground Information Service mobile node"
+maintainer       'Peter Donald'
+maintainer_email 'peter@realityforge.org'
+license          'Apache 2.0'
+description      'Role cookbook for configuring a Fire Ground Information Service mobile node'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.4.0"
+version          '0.4.0'
 
-supports "ubuntu"
+supports 'ubuntu'
 
-depends "apt"
-depends "locale"
-depends "postgis"
-depends "psql"
-depends "glassfish"
+depends 'apt'
+depends 'locale'
+depends 'postgis'
+depends 'psql'
+depends 'glassfish'
