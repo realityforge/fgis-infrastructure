@@ -36,6 +36,11 @@ test -f geoserver.war
   not_if { ::File.exists?("#{Chef::Config[:file_cache_path]}/geoserver.war") }
 end
 
+node.override['glassfish']['base_dir'] = '/usr/local/glassfish'
+node.override['glassfish']['domains_dir'] = '/usr/local/glassfish/glassfish/domains'
+
+include_recipe 'glassfish::default'
+
 directory '/srv/geoserver' do
   owner node['glassfish']['user']
   group node['glassfish']['group']
@@ -61,9 +66,6 @@ template "#{geo_data}/security/users.properties" do
   group node['glassfish']['group']
   variables(:users => [['admin','geoserver','ROLE_ADMINISTRATOR']])
 end
-
-node.override['glassfish']['base_dir'] = '/usr/local/glassfish'
-node.override['glassfish']['domains_dir'] = '/usr/local/glassfish/glassfish/domains'
 
 node.override['glassfish']['domains']['geo'] =
   {
