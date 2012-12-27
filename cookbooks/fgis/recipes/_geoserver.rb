@@ -18,10 +18,13 @@ package_url = 'http://downloads.sourceforge.net/geoserver/geoserver-2.1.4-war.zi
 base_package_filename = File.basename(package_url)
 cached_package_filename = "#{Chef::Config[:file_cache_path]}/#{base_package_filename}"
 
+check_proc = Proc.new { ::File.exists?("#{Chef::Config[:file_cache_path]}/geoserver.war") }
+
 remote_file cached_package_filename do
   source package_url
   mode '0600'
   action :create_if_missing
+  not_if { check_proc.call }
 end
 
 package 'unzip'
@@ -33,7 +36,7 @@ unzip -qq #{cached_package_filename} geoserver.war
 chown #{node['glassfish']['user']}:#{node['glassfish']['group']} geoserver.war
 test -f geoserver.war
   EOF
-  not_if { ::File.exists?("#{Chef::Config[:file_cache_path]}/geoserver.war") }
+  not_if { check_proc.call }
 end
 
 node.override['glassfish']['base_dir'] = '/usr/local/glassfish'
