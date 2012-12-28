@@ -64,7 +64,7 @@ end
 
 # This is a little open. I am basing the SQL on ...
 # http://stackoverflow.com/questions/760210/how-do-you-create-a-read-only-user-in-postgresql
-psql_execute "Grant #{node['fgis']['database']['username']} full access to database artifacts" do
+psql_exec "Grant #{node['fgis']['database']['username']} full access to database artifacts" do
   host node['fqdn']
   port node['postgresql']['config']['port']
   admin_username 'postgres'
