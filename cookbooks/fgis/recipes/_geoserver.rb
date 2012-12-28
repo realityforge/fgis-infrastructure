@@ -55,8 +55,8 @@ package 'git'
 
 geo_data = '/srv/geoserver/data'
 git geo_data do
-  repository 'git://github.com/rhok-melbourne/fgis-geoserver.git'
-  reference 'master'
+  repository node['fgis']['geoserver']['repository']
+  reference node['fgis']['geoserver']['reference']
   user node['glassfish']['user']
   group node['glassfish']['group']
   action :sync
