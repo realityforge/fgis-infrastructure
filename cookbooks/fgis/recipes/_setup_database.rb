@@ -61,3 +61,17 @@ psql_permission "#{node['fgis']['database']['username']}@#{node['fgis']['databas
   database node['fgis']['database']['db_name']
   permissions ['ALL']
 end
+
+# This is a little open. I am basing the SQL on ...
+# http://stackoverflow.com/questions/760210/how-do-you-create-a-read-only-user-in-postgresql
+psql_execute "Grant #{node['fgis']['database']['username']} full access to database artifacts" do
+  host node['fqdn']
+  port node['postgresql']['config']['port']
+  admin_username 'postgres'
+  admin_password node['postgresql']['password']['postgres']
+  dbname node['fgis']['database']['db_name']
+  command <<-SQL
+GRANT USAGE ON SCHEMA public TO "#{node['fgis']['database']['username']}";
+GRANT ALL ON ALL TABLES IN SCHEMA public TO "#{node['fgis']['database']['username']}"
+  SQL
+end
