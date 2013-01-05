@@ -39,9 +39,6 @@ test -f geoserver.war
   not_if { check_proc.call }
 end
 
-node.override['glassfish']['base_dir'] = '/usr/local/glassfish'
-node.override['glassfish']['domains_dir'] = '/usr/local/glassfish/glassfish/domains'
-
 include_recipe 'glassfish::default'
 
 directory '/srv/geoserver' do
