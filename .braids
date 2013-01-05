@@ -42,13 +42,6 @@ cookbooks/psql:
   squashed: true
   type: git
   url: git://github.com/realityforge/chef-psql.git
-cookbooks/glassfish: 
-  branch: master
-  remote: master/braid/cookbooks/glassfish
-  revision: 04f21fccee0c081c4cde84d2949a2a7ba75654d9
-  squashed: true
-  type: git
-  url: git://github.com/realityforge/chef-glassfish.git
 cookbooks/cutlery: 
   branch: master
   remote: master/braid/cookbooks/cutlery
@@ -70,3 +63,10 @@ cookbooks/postgis:
   squashed: true
   type: git
   url: git://github.com/realityforge/chef-postgis.git
+cookbooks/glassfish: 
+  branch: master
+  remote: master/braid/cookbooks/glassfish
+  revision: ad179e256998bcfd408e2ee97fa4d802b16b4f75
+  squashed: true
+  type: git
+  url: git://github.com/realityforge/chef-glassfish.git
