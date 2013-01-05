@@ -12,62 +12,17 @@
 # limitations under the License.
 #
 
-#Hmmm ... 2.2.4 does not seem to work in glassfish?
-#package_url = 'http://downloads.sourceforge.net/geoserver/geoserver-2.2.2-war.zip'
-package_url = 'http://downloads.sourceforge.net/geoserver/geoserver-2.1.4-war.zip'
-base_package_filename = File.basename(package_url)
-cached_package_filename = "#{Chef::Config[:file_cache_path]}/#{base_package_filename}"
-
-check_proc = Proc.new { ::File.exists?("#{Chef::Config[:file_cache_path]}/geoserver.war") }
-
-remote_file cached_package_filename do
-  source package_url
-  mode '0600'
-  action :create_if_missing
-  not_if { check_proc.call }
-end
-
-package 'unzip'
-
-bash 'unpack_geoserver' do
-  code <<-EOF
-cd #{Chef::Config[:file_cache_path]}
-unzip -qq #{cached_package_filename} geoserver.war
-chown #{node['glassfish']['user']}:#{node['glassfish']['group']} geoserver.war
-test -f geoserver.war
-  EOF
-  not_if { check_proc.call }
-end
-
 include_recipe 'glassfish::default'
 
-directory '/srv/geoserver' do
-  owner node['glassfish']['user']
-  group node['glassfish']['group']
-  mode 0700
-  recursive true
-end
+node.override['geoserver']['user'] = node['glassfish']['user']
+node.override['geoserver']['group'] = node['glassfish']['group']
 
-package 'git'
+node.override['geoserver']['git']['config_repository'] = 'git://github.com/rhok-melbourne/fgis-geoserver.git'
+node.override['geoserver']['glassfish']['domain'] = 'geo'
+node.override['geoserver']['users']['admin']['password'] = 'geoserver'
+node.override['geoserver']['users']['admin']['role'] = 'ROLE_ADMINISTRATOR'
 
-geo_data = '/srv/geoserver/data'
-git geo_data do
-  repository node['fgis']['geoserver']['repository']
-  reference node['fgis']['geoserver']['reference']
-  user node['glassfish']['user']
-  group node['glassfish']['group']
-  action :sync
-end
-
-template "#{geo_data}/security/users.properties" do
-  source 'users.properties.erb'
-  mode 0700
-  user node['glassfish']['user']
-  group node['glassfish']['group']
-  variables(:users => [['admin','geoserver','ROLE_ADMINISTRATOR']])
-end
-
-node.override['glassfish']['domains']['geo'] =
+node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']] =
   {
     'config' => {
       'min_memory' => 412,
@@ -79,7 +34,6 @@ node.override['glassfish']['domains']['geo'] =
       'username' => 'geo_admin',
       'password' => 'G3TzM3Inith!PLZ',
       'remote_access' => 'true',
-      'jvm_options' => ["-DGEOSERVER_DATA_DIR=#{geo_data}"]
     },
     'properties' => {
       'configs.config.server-config.admin-service.das-config.autodeploy-enabled' => 'false',
@@ -113,10 +67,6 @@ node.override['glassfish']['domains']['geo'] =
       }
     },
     'deployables' => {
-      'geoserver' => {
-        'url' => "file://#{Chef::Config[:file_cache_path]}/geoserver.war",
-        'context_root' => '/geoserver'
-      },
       'fgis' => {
         'url' => 'https://github.com/realityforge/repository/raw/master/org/realityforge/fgis/fgis/0.3/fgis-0.3.war',
         'context_root' => '/fgis'
@@ -124,4 +74,5 @@ node.override['glassfish']['domains']['geo'] =
     },
   }
 
+include_recipe 'geoserver::default'
 include_recipe 'glassfish::attribute_driven_domain'

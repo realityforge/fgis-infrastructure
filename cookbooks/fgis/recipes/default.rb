@@ -32,7 +32,4 @@ node.override['java']['install_flavor'] = 'oracle'
 node.override['java']['jdk_version'] = '7'
 include_recipe 'java::default'
 
-node.default['fgis']['geoserver']['repository'] = 'git://github.com/rhok-melbourne/fgis-geoserver.git'
-node.default['fgis']['geoserver']['reference'] = 'master'
-
 include_recipe 'fgis::_geoserver'
