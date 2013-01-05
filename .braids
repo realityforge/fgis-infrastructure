@@ -13,13 +13,6 @@ cookbooks/authbind:
   squashed: true
   type: git
   url: git://github.com/realityforge/chef-authbind.git
-cookbooks/cutlery: 
-  branch: master
-  remote: master/braid/cookbooks/cutlery
-  revision: 90c68b4464a0d4d3b7148fa64a1fd9e56951a6c2
-  squashed: true
-  type: git
-  url: git://github.com/realityforge/chef-cutlery.git
 cookbooks/java: 
   branch: master
   remote: master/braid/cookbooks/java
@@ -70,3 +63,10 @@ cookbooks/glassfish:
   squashed: true
   type: git
   url: git://github.com/realityforge/chef-glassfish.git
+cookbooks/cutlery: 
+  branch: master
+  remote: master/braid/cookbooks/cutlery
+  revision: 3434d6630f6d6cf6f5ebdf31083d14f55c8744d2
+  squashed: true
+  type: git
+  url: git://github.com/realityforge/chef-cutlery.git
