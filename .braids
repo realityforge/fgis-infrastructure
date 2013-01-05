@@ -20,13 +20,6 @@ cookbooks/cutlery:
   squashed: true
   type: git
   url: git://github.com/realityforge/chef-cutlery.git
-cookbooks/glassfish: 
-  branch: master
-  remote: master/braid/cookbooks/glassfish
-  revision: d67a5857efc9330f434687cf7fa88b4976e11c43
-  squashed: true
-  type: git
-  url: git://github.com/realityforge/chef-glassfish.git
 cookbooks/java: 
   branch: master
   remote: master/braid/cookbooks/java
@@ -49,7 +42,7 @@ cookbooks/openssl:
   squashed: true
   type: git
   url: git://github.com/opscode-cookbooks/openssl.git
-cookbooks/postgresql:
+cookbooks/postgresql: 
   branch: master
   remote: master/braid/cookbooks/postgresql
   revision: 5d7f69533db0e36bcfe3d92f12fb25ef888fdeb7
@@ -70,3 +63,10 @@ cookbooks/postgis:
   squashed: true
   type: git
   url: git://github.com/realityforge/chef-postgis.git
+cookbooks/glassfish: 
+  branch: master
+  remote: master/braid/cookbooks/glassfish
+  revision: 04f21fccee0c081c4cde84d2949a2a7ba75654d9
+  squashed: true
+  type: git
+  url: git://github.com/realityforge/chef-glassfish.git
