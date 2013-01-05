@@ -121,7 +121,7 @@ node.override['glassfish']['domains']['geo'] =
         'context_root' => '/geoserver'
       },
       'fgis' => {
-        'url' => 'https://github.com/realityforge/repository/raw/master/org/realityforge/fgis/fgis/0.1/fgis-0.1.war',
+        'url' => 'https://github.com/realityforge/repository/raw/master/org/realityforge/fgis/fgis/0.3/fgis-0.3.war',
         'context_root' => '/fgis'
       }
     },
