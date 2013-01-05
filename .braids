@@ -66,7 +66,7 @@ cookbooks/postgis:
 cookbooks/glassfish: 
   branch: master
   remote: master/braid/cookbooks/glassfish
-  revision: eccc14996424ce2d24123a6537a392d8b4756afb
+  revision: c7d3f0ac059c578077b07ac1910bfb2750a3c5df
   squashed: true
   type: git
   url: git://github.com/realityforge/chef-glassfish.git
