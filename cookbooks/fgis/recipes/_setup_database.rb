@@ -28,11 +28,6 @@ node.override['postgresql']['password']['postgres'] = 'Open_Sesame'
 node.override['postgresql']['config']['ssl'] = false
 node.override['postgresql']['config']['listen_addresses'] = '0.0.0.0'
 
-# Include the keys as cookbook files so that we don't need to go out
-# to retrieve keys from key server. This allows the recipe to execute
-# behind a firewall.
-include_recipe 'fgis::_add_keys'
-
 include_recipe 'postgis::default'
 
 psql_user node['fgis']['database']['username'] do
