@@ -12,8 +12,6 @@
 # limitations under the License.
 #
 
-include_recipe 'glassfish::default'
-
 node.override['geoserver']['user'] = node['glassfish']['user']
 node.override['geoserver']['group'] = node['glassfish']['group']
 
@@ -22,57 +20,4 @@ node.override['geoserver']['glassfish']['domain'] = 'geo'
 node.override['geoserver']['users']['admin']['password'] = 'geoserver'
 node.override['geoserver']['users']['admin']['role'] = 'ROLE_ADMINISTRATOR'
 
-node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']] =
-  {
-    'config' => {
-      'min_memory' => 412,
-      'max_memory' => 512,
-      'max_perm_size' => 200,
-      'port' => 80,
-      'admin_port' => 8085,
-      'max_stack_size' => 200,
-      'username' => 'geo_admin',
-      'password' => 'G3TzM3Inith!PLZ',
-      'remote_access' => 'true',
-    },
-    'properties' => {
-      'configs.config.server-config.admin-service.das-config.autodeploy-enabled' => 'false',
-      'configs.config.server-config.admin-service.das-config.dynamic-reload-enabled' => 'false'
-    },
-    'extra_libraries' => {
-      'postgresql' => 'http://jdbc.postgresql.org/download/postgresql-9.2-1002.jdbc4.jar'
-    },
-    'jdbc_connection_pools' => {
-      'GeoServerPool' => {
-        'config' => {
-          'datasourceclassname' => 'org.postgresql.ds.PGConnectionPoolDataSource',
-          'restype' => 'javax.sql.ConnectionPoolDataSource',
-          'isconnectvalidatereq' => 'true',
-          'validationmethod' => 'auto-commit',
-          'ping' => 'true',
-          'description' => 'GeoServer Connection Pool',
-          'properties' => {
-            'databaseName' => node['fgis']['database']['db_name'],
-            'user' => node['fgis']['database']['username'],
-            'password' => node['fgis']['database']['password'],
-            'serverName' => '127.0.0.1',
-            'portNumber' => '5432',
-          }
-        },
-        'resources' => {
-          'jdbc/GeoServer' => {
-            'description' => 'GeoServer Connection Resource'
-          }
-        }
-      }
-    },
-    'deployables' => {
-      'fgis' => {
-        'url' => 'https://github.com/realityforge/repository/raw/master/org/realityforge/fgis/fgis/0.3/fgis-0.3.war',
-        'context_root' => '/fgis'
-      }
-    },
-  }
-
 include_recipe 'geoserver::default'
-include_recipe 'glassfish::attribute_driven_domain'

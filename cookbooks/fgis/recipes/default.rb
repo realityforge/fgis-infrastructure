@@ -32,4 +32,4 @@ node.override['java']['install_flavor'] = 'oracle'
 node.override['java']['jdk_version'] = '7'
 include_recipe 'java::default'
 
-include_recipe 'fgis::_geoserver'
+include_recipe 'fgis::_glassfish'
