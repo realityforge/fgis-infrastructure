@@ -46,7 +46,7 @@
     "revision": "ae51743fe82510b5e9750d9e8eda4782c9d97ef0",
     "squashed": true,
     "type": "git",
-    "url": "git://github.com/heavywater/chef-locale.git"
+    "url": "git://github.com/hw-cookbooks/locale.git"
   },
   "cookbooks/openssl": {
     "branch": "master",
