@@ -54,7 +54,7 @@ psql_permission "#{node['fgis']['database']['username']}@#{node['fgis']['databas
   admin_password node['postgresql']['password']['postgres']
   username node['fgis']['database']['username']
   database node['fgis']['database']['db_name']
-  permissions ['ALL']
+  permissions %w(ALL)
 end
 
 # This is a little open. I am basing the SQL on ...
