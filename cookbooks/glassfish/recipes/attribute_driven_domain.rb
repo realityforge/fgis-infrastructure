@@ -14,6 +14,12 @@
 # limitations under the License.
 #
 
+=begin
+#<
+The `attribute_driven_domain` recipe interprets attributes on the node and defines the resources described in the attributes.
+#>
+=end
+
 include_recipe 'glassfish::default'
 
 def gf_scan_existing_resources(admin_port, username, password_file, secure, command)
@@ -24,8 +30,20 @@ def gf_scan_existing_resources(admin_port, username, password_file, secure, comm
   options[:admin_port] = admin_port if admin_port
 
   output = `#{Asadmin.asadmin_command(node, command, options)} 2> /dev/null`
-  output.split("\n").collect { |line| line.scan(/^(\S+)/).flatten[0] }.each do |existing|
+  return if output =~ /^Nothing to list.*/ || output =~ /^No such local command.*/
+  lines = output.split("\n")
+
+  lines.each do |line|
+    existing = line.scan(/^(\S+)/).flatten[0]
     yield existing
+  end
+end
+
+node['glassfish']['domains'].each_pair do |domain_key, definition|
+  if definition['recipes'] && definition['recipes']['before']
+    definition['recipes']['before'].each do |recipe|
+      include_recipe recipe
+    end
   end
 end
 
@@ -311,7 +329,11 @@ node['glassfish']['domains'].each_pair do |domain_key, definition|
     end
   end
 
-  gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-applications') do |versioned_component_name|
+  gf_scan_existing_resources(admin_port,
+                             username,
+                             password_file,
+                             secure,
+                             'list-applications') do |versioned_component_name|
     name_parts = versioned_component_name.split(':')
     key = name_parts[0]
     version_parts = name_parts.size > 1 ? name_parts[1].split('+') : ['']
@@ -324,7 +346,7 @@ node['glassfish']['domains'].each_pair do |domain_key, definition|
       # OSGi does not keep the version in the name so we need to store it on the filesystem
       if config['type'].to_s == 'osgi'
         version_file = "#{node['glassfish']['domains_dir']}/#{domain_key}_#{key}.VERSION"
-        keep = (File.readlines(version_file).join('').gsub(/\s/,'') == versioned_component_name) rescue false
+        keep = (File.readlines(version_file).join('').gsub(/\s/, '') == versioned_component_name) rescue false
       else
         if config['version'] == version || Digest::SHA1.hexdigest(config['url']) == version
           if (!plan_version && (!config['descriptors'] || config['descriptors'].empty?)) ||
@@ -350,7 +372,11 @@ node['glassfish']['domains'].each_pair do |domain_key, definition|
   if definition['deployables']
     definition['deployables'].each_pair do |component_name, configuration|
       next if configuration['type'] && configuration['type'].to_s == 'osgi'
-      gf_scan_existing_resources(admin_port, username, password_file, secure, "list-web-env-entry #{component_name}") do |existing|
+      gf_scan_existing_resources(admin_port,
+                                 username,
+                                 password_file,
+                                 secure,
+                                 "list-web-env-entry #{component_name}") do |existing|
         unless configuration['web_env_entries'] && configuration['web_env_entries'][existing]
           glassfish_web_env_entry "#{domain_key}: #{component_name} unset #{existing}" do
             domain_name domain_key
@@ -367,7 +393,11 @@ node['glassfish']['domains'].each_pair do |domain_key, definition|
     end
   end
 
-  gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-resource-adapter-configs') do |existing|
+  gf_scan_existing_resources(admin_port,
+                             username,
+                             password_file,
+                             secure,
+                             'list-resource-adapter-configs') do |existing|
     unless definition['resource_adapters'] && definition['resource_adapters'][existing]
       glassfish_resource_adapter existing do
         domain_name domain_key
@@ -380,7 +410,11 @@ node['glassfish']['domains'].each_pair do |domain_key, definition|
     end
   end
 
-  gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-connector-connection-pools') do |existing|
+  gf_scan_existing_resources(admin_port,
+                             username,
+                             password_file,
+                             secure,
+                             'list-connector-connection-pools') do |existing|
     found = false
     if definition['resource_adapters']
       definition['resource_adapters'].each_pair do |key, configuration|
@@ -449,7 +483,10 @@ node['glassfish']['domains'].each_pair do |domain_key, definition|
 
   gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-jdbc-connection-pools') do |existing|
     standard_pools = %w{__TimerPool}
-    unless definition['jdbc_connection_pools'] && definition['jdbc_connection_pools'][existing] || standard_pools.include?(existing)
+    unless definition['jdbc_connection_pools'] &&
+           definition['jdbc_connection_pools'][existing] ||
+           standard_pools.include?(existing)
+
       glassfish_jdbc_connection_pool existing do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -533,6 +570,14 @@ node['glassfish']['domains'].each_pair do |domain_key, definition|
         secure secure if secure
         action :delete
       end
+    end
+  end
+end
+
+node['glassfish']['domains'].each_pair do |domain_key, definition|
+  if definition['recipes'] && definition['recipes']['after']
+    definition['recipes']['after'].each do |recipe|
+      include_recipe recipe
     end
   end
 end

@@ -4,11 +4,14 @@ maintainer_email 'peter@realityforge.org'
 license          'Apache 2.0'
 description      'Installs/Configures GlassFish Application Server'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '0.5.19'
+version          '0.5.23'
 
-recipe 'glassfish::default', 'Installs and configures GlassFish'
-recipe 'glassfish::attribute_driven_domain', 'Installs GlassFish domains defined in the glassfish/domains attribute'
-recipe 'glassfish::attribute_driven_mq', 'Installs GlassFish OpenMQ brokers defined in the openmq/instances attribute'
+recipe 'glassfish::default', 'Installs the GlassFish binaries.'
+recipe 'glassfish::attribute_driven_domain', 'Configures 0 or more GlassFish domains using the glassfish/domains attribute.'
+recipe 'glassfish::search_driven_domain', 'Configures 0 or more GlassFish domains using search to generate the configuration.'
+recipe 'glassfish::attribute_driven_mq', 'Configures 0 or more GlassFish OpenMQ brokers using the openmq/instances attribute.'
+
+supports 'ubuntu'
 
 depends 'java'
 depends 'authbind'
@@ -36,13 +39,13 @@ attribute 'glassfish/base_dir',
   :display_name => 'GlassFish Base Directory',
   :description => 'The base directory of the GlassFish install',
   :type => 'string',
-  :default => '/usr/local/glassfish-3.1.2'
+  :default => '/usr/local/glassfish'
 
 attribute 'glassfish/domains_dir',
   :display_name => 'GlassFish Domain Directory',
   :description => 'The directory containing all the domain definitions',
   :type => 'string',
-  :default => '/usr/local/glassfish-3.1.2/glassfish/domains'
+  :default => '/usr/local/glassfish/glassfish/domains'
 
 attribute 'glassfish/domains',
   :display_name => 'GlassFish Domain Definitions',

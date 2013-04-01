@@ -27,19 +27,26 @@ attribute :virtual_servers, :kind_of => Array, :default => []
 attribute :generate_rmi_stubs, :equal_to => [true, false, 'true', 'false'], :default => false
 attribute :availability_enabled, :equal_to => [true, false, 'true', 'false'], :default => false
 attribute :lb_enabled, :equal_to => [true, false, 'true', 'false'], :default => true
-attribute :keep_state, :equal_to => [true, false, 'true', 'false', ], :default => false
+attribute :keep_state, :equal_to => [true, false, 'true', 'false'], :default => false
 attribute :verify, :equal_to => [true, false, 'true', 'false'], :default => false
 attribute :precompile_jsp, :equal_to => [true, false, 'true', 'false'], :default => true
 attribute :async_replication, :equal_to => [true, false, 'true', 'false'], :default => true
 attribute :properties, :kind_of => Hash, :default => {}
 attribute :descriptors, :kind_of => Hash, :default => {}
 
+#<> @attribute domain_name The name of the domain.
 attribute :domain_name, :kind_of => String, :required => true
+#<> @attribute terse Use terse output from the underlying asadmin.
 attribute :terse, :kind_of => [TrueClass, FalseClass], :default => false
+#<> @attribute echo If true, echo commands supplied to asadmin.
 attribute :echo, :kind_of => [TrueClass, FalseClass], :default => true
+#<> @attribute username The username to use when communicating with the domain.
 attribute :username, :kind_of => String, :default => nil
+#<> @attribute password_file The file in which the password must be stored assigned to appropriate key.
 attribute :password_file, :kind_of => String, :default => nil
+#<> @attribute secure If true use SSL when communicating with the domain for administration.
 attribute :secure, :kind_of => [TrueClass, FalseClass], :default => false
+#<> @attribute admin_port The port on which the web management console is bound.
 attribute :admin_port, :kind_of => Integer, :default => 4848
 
 default_action :deploy

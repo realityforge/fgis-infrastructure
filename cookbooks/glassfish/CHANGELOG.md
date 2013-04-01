@@ -1,5 +1,15 @@
+## v0.5.24:
+* Enhance : Add the ability to hook into the configuration of domains in `attribute_driven_domain` recipe
+            by adding recipes to include before and after a domain is configured.
+* Bug     : Stop trying to undeploy non-existent resources when server is not upa at start of chef run.
+
+## v0.5.22:
+* Change  : Replace the use of cutlery's notifying_action with Chef 11's use_inline_resources method.
+* Bug     : Ensure that changes to custom resources are updated on the glassfish server if required.
+
 ## v0.5.20:
 * Bug     : Ensure terse and echo flags are correctly passed to asadmin command.
+* Fix     : Ensure that alternative domain paths are supported.
 * Change  : Prefer new notification syntax.
 * Change  : Avoid downloading remote artifacts (deployables, libraries and base install) if they will not
             actually be used by adding some not_if guards.

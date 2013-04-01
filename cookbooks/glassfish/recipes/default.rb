@@ -14,6 +14,17 @@
 # limitations under the License.
 #
 
+=begin
+#<
+Downloads, and extracts the glassfish binaries, creates the glassfish user and group.
+
+Does not create any Application Server or Message Broker instances. This recipe is not
+typically included directly but is included transitively through either <code>glassfish::attribute_driven_domain</code>
+or <code>glassfish::attribute_driven_mq</code>.
+#>
+=end
+
+
 include_recipe 'java'
 
 group node['glassfish']['group'] do
@@ -30,7 +41,7 @@ end
 package_url = node['glassfish']['package_url']
 base_package_filename = File.basename(package_url)
 cached_package_filename = "#{Chef::Config[:file_cache_path]}/#{base_package_filename}"
-check_proc = Proc.new { ::File.exists?( node['glassfish']['base_dir'] ) }
+check_proc = Proc.new { ::File.exists?(node['glassfish']['base_dir']) }
 
 remote_file cached_package_filename do
   not_if { check_proc.call }

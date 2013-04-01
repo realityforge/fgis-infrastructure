@@ -169,7 +169,9 @@ def replace_in_domain_file(key, value)
   "sed -i 's/#{key}/#{value}/g' #{domain_dir_path}/config/domain.xml 2> /dev/null > /dev/null"
 end
 
-notifying_action :create do
+use_inline_resources
+
+action :create do
   requires_authbind = new_resource.port < 1024 || new_resource.admin_port < 1024
 
   service "glassfish-#{new_resource.domain_name}" do
@@ -253,7 +255,7 @@ notifying_action :create do
     command_string << replace_in_domain_file("%%%MAX_STACK_SIZE%%%", new_resource.max_stack_size)
     command_string << replace_in_domain_file("%%%MAX_MEM_SIZE%%%", new_resource.max_memory)
     command_string << replace_in_domain_file("%%%MIN_MEM_SIZE%%%", new_resource.min_memory)
-    command_string << asadmin_command("verify-domain-xml #{new_resource.domain_name}", false)
+    command_string << asadmin_command("verify-domain-xml #{domain_dir_arg} #{new_resource.domain_name}", false)
 
     user node['glassfish']['user']
     group node['glassfish']['group']
@@ -289,7 +291,7 @@ notifying_action :create do
   end
 end
 
-notifying_action :destroy do
+action :destroy do
   bash "destroy domain #{new_resource.domain_name}" do
     only_if "#{asadmin_command('list-domains')} #{domain_dir_arg} | grep -- '#{new_resource.domain_name} '"
     command_string = []

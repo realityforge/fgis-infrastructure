@@ -18,7 +18,12 @@ actions :create, :delete
 
 attribute :pool_name, :kind_of => String, :name_attribute => true
 
-STRING_ATTRIBUTES = [:datasourceclassname, :initsql, :sqltracelisteners, :driverclassname, :validationclassname, :validationtable]
+STRING_ATTRIBUTES = [:datasourceclassname,
+                     :initsql,
+                     :sqltracelisteners,
+                     :driverclassname,
+                     :validationclassname,
+                     :validationtable]
 STRING_ATTRIBUTES.each do |key|
   attribute key, :kind_of => String, :default => nil
 end
@@ -62,16 +67,28 @@ end
 
 attribute :description, :kind_of => String, :default => nil
 attribute :properties, :kind_of => Hash, :default => {}
-attribute :restype, :equal_to => ['java.sql.Driver', 'javax.sql.DataSource', 'javax.sql.XADataSource', 'javax.sql.ConnectionPoolDataSource'], :default => nil
+attribute :restype,
+          :equal_to => ['java.sql.Driver',
+                        'javax.sql.DataSource',
+                        'javax.sql.XADataSource',
+                        'javax.sql.ConnectionPoolDataSource'],
+          :default => nil
 attribute :isolationlevel, :equal_to => ['read-uncommitted', 'read-committed', 'repeatable-read', 'serializable']
 attribute :validationmethod, :equal_to => ['auto-commit', 'meta-data', 'table', 'custom-validation']
 
+#<> @attribute domain_name The name of the domain.
 attribute :domain_name, :kind_of => String, :required => true
+#<> @attribute terse Use terse output from the underlying asadmin.
 attribute :terse, :kind_of => [TrueClass, FalseClass], :default => false
+#<> @attribute echo If true, echo commands supplied to asadmin.
 attribute :echo, :kind_of => [TrueClass, FalseClass], :default => true
+#<> @attribute username The username to use when communicating with the domain.
 attribute :username, :kind_of => String, :default => nil
+#<> @attribute password_file The file in which the password must be stored assigned to appropriate key.
 attribute :password_file, :kind_of => String, :default => nil
+#<> @attribute secure If true use SSL when communicating with the domain for administration.
 attribute :secure, :kind_of => [TrueClass, FalseClass], :default => false
+#<> @attribute admin_port The port on which the web management console is bound.
 attribute :admin_port, :kind_of => Integer, :default => 4848
 
 default_action :create
