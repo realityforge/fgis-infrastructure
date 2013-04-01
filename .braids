@@ -59,7 +59,7 @@
   "cookbooks/postgis": {
     "branch": "master",
     "remote": "master/braid/cookbooks/postgis",
-    "revision": "ed393bb7e91db4092d8cc5162ab99305120bc521",
+    "revision": "ea40ab2c06b2830df4a896b53c40c26b734a6f67",
     "squashed": true,
     "type": "git",
     "url": "git://github.com/realityforge/chef-postgis.git"
