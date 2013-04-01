@@ -15,6 +15,13 @@
     "type": "git",
     "url": "git://github.com/realityforge/chef-authbind.git"
   },
+  "cookbooks/build-essential": {
+    "url": "git://github.com/opscode-cookbooks/build-essential.git",
+    "remote": "master/braid/cookbooks/build-essential",
+    "branch": "master",
+    "squashed": true,
+    "revision": "c803d604c061b53895792c67457bc50e023d48c2"
+  },
   "cookbooks/cutlery": {
     "branch": "master",
     "remote": "master/braid/cookbooks/cutlery",
