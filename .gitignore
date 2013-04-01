@@ -16,6 +16,4 @@
 # Ignore temporary WIP files
 /tmp
 
-/.bundle
-/bin
 /Gemfile.lock
