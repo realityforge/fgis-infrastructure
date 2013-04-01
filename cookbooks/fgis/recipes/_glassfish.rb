@@ -12,6 +12,8 @@
 # limitations under the License.
 #
 
+node.override['geoserver']['glassfish']['domain'] = 'geo'
+
 node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']] =
   {
     'config' => {

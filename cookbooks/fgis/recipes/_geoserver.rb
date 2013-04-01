@@ -16,7 +16,6 @@ node.override['geoserver']['user'] = node['glassfish']['user']
 node.override['geoserver']['group'] = node['glassfish']['group']
 
 node.override['geoserver']['git']['config_repository'] = 'git://github.com/rhok-melbourne/fgis-geoserver.git'
-node.override['geoserver']['glassfish']['domain'] = 'geo'
 node.override['geoserver']['users']['admin']['password'] = 'geoserver'
 node.override['geoserver']['users']['admin']['role'] = 'ROLE_ADMINISTRATOR'
 
