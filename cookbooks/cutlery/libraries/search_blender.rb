@@ -32,9 +32,9 @@ class ::Chef #nodoc
         ::Chef::Search::Query.new.search(search_key, query, sort_key) do |config|
           value = input_path.split('.').inject(config) { |element, key| element.nil? ? nil : element[key] }
           if value
-            existing = output_path.split('.').inject(node) { |element, key| element[key] }
+            existing = output_path.split('.').inject(node.override) { |element, key| element[key] }
             if existing
-              results = ::Chef::Mixin::DeepMerge.deep_merge(value, existing.to_hash, {:preserve_unmergeables => false}).to_hash
+              results = ::Chef::Mixin::DeepMerge.deep_merge(value, existing.to_hash).to_hash
             else
               results = value.dup
             end
