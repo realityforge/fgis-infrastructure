@@ -30,10 +30,6 @@ node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']] 
     'recipes' => {
       'before' => %w(fgis::_geoserver)
     },
-    'properties' => {
-      'configs.config.server-config.admin-service.das-config.autodeploy-enabled' => 'false',
-      'configs.config.server-config.admin-service.das-config.dynamic-reload-enabled' => 'false'
-    },
     'extra_libraries' => {
       'postgresql' => 'http://jdbc.postgresql.org/download/postgresql-9.2-1002.jdbc4.jar'
     },
