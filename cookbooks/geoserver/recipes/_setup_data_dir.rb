@@ -22,6 +22,12 @@ if node['geoserver']['git']['config_repository']
     group node['geoserver']['group']
     action :sync
   end
+else
+  directory node['geoserver']['data_dir'] do
+    owner node['geoserver']['user']
+    group node['geoserver']['group']
+    mode 0700
+  end
 end
 
 directory "#{node['geoserver']['data_dir']}/security" do
