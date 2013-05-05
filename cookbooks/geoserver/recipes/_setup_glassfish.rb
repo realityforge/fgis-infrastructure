@@ -15,5 +15,6 @@
 domain = node['geoserver']['glassfish']['domain']
 
 node.override['glassfish']['domains'][domain]['config']['jvm_options'] = %W(-DGEOSERVER_DATA_DIR=#{node['geoserver']['data_dir']})
-node.override['glassfish']['domains'][domain]['deployables']['geoserver']['url'] = "file://#{node['geoserver']['base_dir']}/geoserver.war"
+node.override['glassfish']['domains'][domain]['deployables']['geoserver']['url'] = "file://#{node['geoserver']['base_dir']}/geoserver-#{node['geoserver']['version']}.war"
+node.override['glassfish']['domains'][domain]['deployables']['geoserver']['version'] = node['geoserver']['version']
 node.override['glassfish']['domains'][domain]['deployables']['geoserver']['context_root'] = node['geoserver']['glassfish']['root']

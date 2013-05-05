@@ -19,8 +19,8 @@ directory node['geoserver']['base_dir'] do
   recursive true
 end
 
-cached_package_filename = "#{Chef::Config[:file_cache_path]}/#{File.basename(node['geoserver']['package_url'])}"
-check_proc = Proc.new { ::File.exists?("#{node['geoserver']['base_dir']}/geoserver.war") }
+cached_package_filename = "#{Chef::Config[:file_cache_path]}/geoserver-#{node['geoserver']['version']}.zip"
+check_proc = Proc.new { ::File.exists?("#{node['geoserver']['base_dir']}/geoserver-#{node['geoserver']['version']}.war") }
 
 remote_file cached_package_filename do
   source node['geoserver']['package_url']
@@ -36,7 +36,8 @@ bash 'unpack_geoserver' do
 cd #{node['geoserver']['base_dir']}
 unzip -qq #{cached_package_filename} geoserver.war
 chown #{node['geoserver']['user']}:#{node['geoserver']['group']} geoserver.war
-test -f geoserver.war
+mv geoserver.war geoserver-#{node['geoserver']['version']}.war
+test -f geoserver-#{node['geoserver']['version']}.war
   EOF
   not_if { check_proc.call }
 end
