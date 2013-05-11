@@ -1,4 +1,23 @@
+## v0.5.26:
+* Bug     : Fix configuration of `factoryclass` parameter on
+            `glassfish_custom_resource` in `attribute_driven_domain` recipe.
+            Submitted by Ian Caughley.
+* Bug     : Fix allowable values of `transactionsupport` parameter to include
+            `XATransaction` rather than ` XATransaction` in
+            `glassfish_connector_connection_pool`.
+* Bug     : Fix for glassfish\_domain resource sourcing template from cookbook
+            where it is used.
+* Bug     : Added mq\_ensure\_running resource to replace upstart check which
+            was causing issues on IPv6 enabled hosts. ~ Jordan Hagan
+* Bug     : Consistency fix for attributes used to generate password hash in
+            OpenMQ passwd file.
+
 ## v0.5.24:
+* Bug     : Fix the `attribute_driven_domain` to avoid undeploying OSGi deployables every secodn run.
+* Change  : Append versions to the name of OSGi components rather than storing the version on the
+            file system in a file.
+* Enhance : Don't require the url parameter in the `glassfish_deployable` LWRP as it is only required
+            for the deploy action.
 * Enhance : Add the ability to hook into the configuration of domains in `attribute_driven_domain` recipe
             by adding recipes to include before and after a domain is configured.
 * Bug     : Stop trying to undeploy non-existent resources when server is not upa at start of chef run.

@@ -34,8 +34,7 @@ Creates a GlassFish application domain, creates an OS-level service and starts t
         "java.util.logging.ConsoleHandler.level" => "INFO",
         "gelf4j.logging.GelfHandler.level" => "ALL",
         "gelf4j.logging.GelfHandler.host" => 'graylog.example.org',
-        "gelf4j.logging.GelfHandler.defaultFields" => '{"environment": "' + node.chef_environment + '", "facility": "MyDomain"}',
-        "gelf4j.logging.GelfHandler.compressedChunking" => false,
+        "gelf4j.logging.GelfHandler.defaultFields" => '{"environment": "' + node.chef_environment + '", "facility": "MyDomain"}'
       }
     end
 #>
@@ -50,7 +49,7 @@ attribute :max_memory, :kind_of => Integer, :default => 512
 #<> @attribute max_perm_size The amount of perm gen memory to allocate to the domain in MiB.
 attribute :max_perm_size, :kind_of => Integer, :default => 96
 #<> @attribute max_stack_size The amount of stack memory to allocate to the domain in KiB.
-attribute :max_stack_size, :kind_of => Integer, :default => 128
+attribute :max_stack_size, :kind_of => Integer, :default => 256
 #<> @attribute port The port on which the HTTP service will bind.
 attribute :port, :kind_of => Integer, :default => 8080
 #<> @attribute admin_port The port on which the web management console is bound.
