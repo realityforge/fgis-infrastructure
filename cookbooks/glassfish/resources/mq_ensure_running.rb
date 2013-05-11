@@ -37,3 +37,4 @@ default_action :run
 attribute :host, :kind_of => String
 #<> @attribute port The port on which the broker listens.
 attribute :port, :kind_of => Integer
+
