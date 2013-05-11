@@ -86,5 +86,12 @@
     "squashed": true,
     "type": "git",
     "url": "git://github.com/realityforge/chef-psql.git"
+  },
+  "cookbooks/tomcat": {
+    "url": "git@github.com:realityforge/chef-tomcat.git",
+    "remote": "master/braid/cookbooks/tomcat",
+    "branch": "master",
+    "squashed": true,
+    "revision": "0d81d4ba91dacebf9142464eaeead50a7660cc3f"
   }
 }
