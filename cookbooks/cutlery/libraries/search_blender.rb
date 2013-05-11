@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 
-class ::Chef #nodoc
+class Chef #nodoc
   module SearchBlender #nodoc
     class << self
       # Search an index on the chef server, using a particular search query. For each result returned,
@@ -38,9 +38,7 @@ class ::Chef #nodoc
             else
               results = value.dup
             end
-            output_keys = output_path.split('.')
-            output_entry = output_keys[0...-1].inject(node.override) { |element, key| element[key] }
-            output_entry[output_keys.last] = results
+            Chef::AttributeBlender.blend_attribute_into_node(node, output_path, results)
           end
         end
       end
