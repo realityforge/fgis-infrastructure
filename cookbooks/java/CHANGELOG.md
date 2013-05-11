@@ -1,3 +1,53 @@
+## v1.10.2:
+
+* [COOK-2415] - Fixed deprecation warnings in ark provider and openjdk
+  recipe by using Chef::Mixin::ShellOut instead of Chef::ShellOut
+
+## v1.10.0:
+
+* [COOK-2400] - Allow java ark :url to be https
+* [COOK-2436] - Upgrade needed for oracle jdk in java cookbook
+
+## v1.9.6:
+
+* [COOK-2412] - add support for Oracle Linux
+
+## v1.9.4:
+
+* [COOK-2083] - Run set-env-java-home in Java cookbook only if necessary
+* [COOK-2332] - ark provider does not allow for *.tgz tarballs to be used
+* [COOK-2345] - Java cookbook fails on CentOS6 (update-java-alternatives)
+
+## v1.9.2:
+
+* [COOK-2306] - FoodCritic fixes for java cookbook
+
+## v1.9.0:
+
+* [COOK-2236] - Update the Oracle Java version in the Java cookbook to
+  release 1.7u11
+
+## v1.8.2:
+
+* [COOK-2205] - Fix for missing /usr/lib/jvm/default-java on Debian
+
+## v1.8.0:
+
+* [COOK-2095] - Add windows support
+
+## v1.7.0:
+
+* [COOK-2001] - improvements for Oracle update-alternatives
+  - When installing an Oracle JDK it is now registered with a higher
+    priority than OpenJDK. (Related to COOK-1131.)
+  - When running both the oracle and oracle_i386 recipes, alternatives
+    are now created for both JDKs.
+  - Alternatives are now created for all binaries listed in version
+    specific attributes. (Related to COOK-1563 and COOK-1635.)
+  - When installing Oracke JDKs on Ubuntu, create .jinfo files for use
+    with update-java-alternatives. Commands to set/install
+    alternatives now only run if needed.
+
 ## v1.6.4:
 
 * [COOK-1930] - fixed typo in attribute for java 5 on i586
