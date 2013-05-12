@@ -263,7 +263,7 @@
   <!--   isVirtualWebappRelative                                            -->
   <!--                       Should "virtual" paths be interpreted as       -->
   <!--                       relative to the context root, instead of       -->
-  <!--                       the server root?  (0=false, 1=true) [0]        -->
+  <!--                       the server root? [false]                       -->
   <!--                                                                      -->
   <!--   inputEncoding       The encoding to assume for SSI resources if    -->
   <!--                       one is not available from the resource.        -->
@@ -294,7 +294,7 @@
         </init-param>
         <init-param>
           <param-name>isVirtualWebappRelative</param-name>
-          <param-value>0</param-value>
+          <param-value>false</param-value>
         </init-param>
         <load-on-startup>4</load-on-startup>
     </servlet>
@@ -388,6 +388,20 @@
 
   <!-- ================== Built In Filter Definitions ===================== -->
 
+  <!-- A filter that sets character encoding that is used to decode -->
+  <!-- parameters in a POST request -->
+<!--
+    <filter>
+        <filter-name>setCharacterEncodingFilter</filter-name>
+        <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <async-supported>true</async-supported>
+    </filter>
+-->
+
   <!-- A filter that triggers request parameters parsing and rejects the    -->
   <!-- request if some parameters were skipped because of parsing errors or -->
   <!-- request size limitations.                                            -->
@@ -430,7 +444,7 @@
   <!--   isVirtualWebappRelative                                            -->
   <!--                       Should "virtual" paths be interpreted as       -->
   <!--                       relative to the context root, instead of       -->
-  <!--                       the server root?  (0=false, 1=true) [0]        -->
+  <!--                       the server root? [false]                       -->
   <!--                                                                      -->
   <!--   allowExec           Is use of the exec command enabled? [false]    -->
 
@@ -454,13 +468,21 @@
         </init-param>
         <init-param>
           <param-name>isVirtualWebappRelative</param-name>
-          <param-value>0</param-value>
+          <param-value>false</param-value>
         </init-param>
     </filter>
 -->
 
 
   <!-- ==================== Built In Filter Mappings ====================== -->
+
+  <!-- The mapping for the Set Character Encoding Filter -->
+<!--
+    <filter-mapping>
+        <filter-name>setCharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+-->
 
   <!-- The mapping for the Failed Request Filter -->
 <!--
@@ -812,6 +834,10 @@
         <mime-type>application/vnd.ms-cab-compressed</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>cap</extension>
+        <mime-type>application/vnd.tcpdump.pcap</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>car</extension>
         <mime-type>application/vnd.curl.car</mime-type>
     </mime-mapping>
@@ -1136,6 +1162,10 @@
         <mime-type>application/octet-stream</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>dmp</extension>
+        <mime-type>application/vnd.tcpdump.pcap</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>dms</extension>
         <mime-type>application/octet-stream</mime-type>
     </mime-mapping>
@@ -1210,6 +1240,10 @@
     <mime-mapping>
         <extension>dv</extension>
         <mime-type>video/x-dv</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>dvb</extension>
+        <mime-type>video/vnd.dvb.file</mime-type>
     </mime-mapping>
     <mime-mapping>
         <extension>dvi</extension>
@@ -1496,6 +1530,10 @@
         <mime-type>application/vnd.groove-account</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>gbr</extension>
+        <mime-type>application/rpki-ghostbusters</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>gdl</extension>
         <mime-type>model/vnd.gdl</mime-type>
     </mime-mapping>
@@ -1742,6 +1780,18 @@
     <mime-mapping>
         <extension>in</extension>
         <mime-type>text/plain</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ink</extension>
+        <mime-type>application/inkml+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>inkml</extension>
+        <mime-type>application/inkml+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>iota</extension>
+        <mime-type>application/vnd.astraea-software.iota</mime-type>
     </mime-mapping>
     <mime-mapping>
         <extension>ipfix</extension>
@@ -2122,6 +2172,10 @@
     <mime-mapping>
         <extension>mfm</extension>
         <mime-type>application/vnd.mfmp</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mft</extension>
+        <mime-type>application/rpki-manifest</mime-type>
     </mime-mapping>
     <mime-mapping>
         <extension>mgp</extension>
@@ -2591,6 +2645,10 @@
         <mime-type>application/vnd.oasis.opendocument.text-template</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>oxps</extension>
+        <mime-type>application/oxps</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>oxt</extension>
         <mime-type>application/vnd.openofficeorg.extension</mime-type>
     </mime-mapping>
@@ -2645,6 +2703,10 @@
     <mime-mapping>
         <extension>pbm</extension>
         <mime-type>image/x-portable-bitmap</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pcap</extension>
+        <mime-type>application/vnd.tcpdump.pcap</mime-type>
     </mime-mapping>
     <mime-mapping>
         <extension>pcf</extension>
@@ -3007,6 +3069,10 @@
         <mime-type>application/relax-ng-compact-syntax</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>roa</extension>
+        <mime-type>application/rpki-roa</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>roff</extension>
         <mime-type>text/troff</mime-type>
     </mime-mapping>
@@ -3249,6 +3315,10 @@
         <mime-type>application/smil+xml</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>smzip</extension>
+        <mime-type>application/vnd.stepmania.package</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>snd</extension>
         <mime-type>audio/basic</mime-type>
     </mime-mapping>
@@ -3350,7 +3420,7 @@
     </mime-mapping>
     <mime-mapping>
         <extension>sub</extension>
-        <mime-type>image/vnd.dvb.subtitle</mime-type>
+        <mime-type>text/vnd.dvb.subtitle</mime-type>
     </mime-mapping>
     <mime-mapping>
         <extension>sus</extension>
@@ -3423,6 +3493,10 @@
     <mime-mapping>
         <extension>t</extension>
         <mime-type>text/troff</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>taglet</extension>
+        <mime-type>application/vnd.mynfc</mime-type>
     </mime-mapping>
     <mime-mapping>
         <extension>tao</extension>
@@ -3713,8 +3787,20 @@
         <mime-type>application/vnd.dece.unspecified</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>uvvz</extension>
+        <mime-type>application/vnd.dece.zip</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>uvx</extension>
         <mime-type>application/vnd.dece.unspecified</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>uvz</extension>
+        <mime-type>application/vnd.dece.zip</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>vcard</extension>
+        <mime-type>text/vcard</mime-type>
     </mime-mapping>
     <mime-mapping>
         <extension>vcd</extension>
