@@ -212,10 +212,11 @@ end
 action :destroy do
   service "tomcat-#{new_resource.instance_name}" do
     provider Chef::Provider::Service::Upstart
-    action [:stop, :disbale]
+    action [:stop, :disable]
   end
 
   directory instance_dir_path do
+    recursive true
     action :delete
   end
 
