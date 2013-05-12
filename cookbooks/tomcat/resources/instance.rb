@@ -66,8 +66,6 @@ attribute :env_variables, :kind_of => Hash, :default => {}
 attribute :instance_name, :kind_of => String, :name_attribute => true
 #<> @attribute logging_properties A hash of properties that will be merged into logging.properties. Use this to send logs to syslog or graylog.
 attribute :logging_properties, :kind_of => Hash, :default => {}
-#<> @attribute realm_types A map of names to realm implementation classes that is merged into the default realm types.
-attribute :realm_types, :kind_of => Hash, :default => {}
 
 #<> @attribute system_user The user that the domain executes as. Defaults to `node['glassfish']['user']` if unset.
 attribute :system_user, :kind_of => String, :default => nil
