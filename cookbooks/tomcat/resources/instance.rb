@@ -23,7 +23,7 @@ Creates a Tomcat instance, creates an OS-level service and starts the service.
 
 @section Examples
 
-    # Create a basic domain that logs to a central graylog server
+    # Create a basic tomcat instance that logs to a central graylog server
     tomcat_instance "my_domain" do
       http_port 80
       extra_libraries ['https://github.com/downloads/realityforge/gelf4j/gelf4j-0.9-all.jar']
