@@ -24,3 +24,4 @@ default['tomcat']['package_checksum'] = 'c26ae0bc424e2639f5c77eb4d274a026c5a584a
 
 default['tomcat']['base_dir'] = '/usr/local/tomcat'
 default['tomcat']['instances_dir'] = '/srv/tomcat'
+default['tomcat']['instances'] = Mash.new
