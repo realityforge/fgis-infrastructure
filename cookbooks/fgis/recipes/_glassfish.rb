@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 
-node.override['geoserver']['glassfish']['domain'] = 'geo'
+node.override['geoserver']['glassfish']['domain'] = 'geo2'
 
 node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']] =
   {
@@ -26,9 +26,8 @@ node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']] 
       'username' => 'geo_admin',
       'password' => 'G3TzM3Inith!PLZ',
       'remote_access' => 'true',
-    },
-    'recipes' => {
-      'before' => %w(fgis::_geoserver)
+      'system_user' => 'fgis2',
+      'system_group' => 'fgis2'
     },
     'extra_libraries' => {
       'postgresql' => 'http://jdbc.postgresql.org/download/postgresql-9.2-1002.jdbc4.jar'
@@ -60,7 +59,10 @@ node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']] 
     'deployables' => {
       'fgis' => {
         'url' => 'https://github.com/realityforge/repository/raw/master/org/realityforge/fgis/fgis/0.3/fgis-0.3.war',
-        'context_root' => '/fgis'
+        'context_root' => '/fgis',
+        'recipes' => {
+          'before' => %w(fgis::_geoserver)
+        }
       }
     },
   }
