@@ -1,4 +1,17 @@
 ## v0.5.26:
+* Enhance : Remove domains in the `attribute_driven_domain` recipe
+            when there is no longer any configuration to represent
+            domain.
+* Enhance : Add the before and after hooks for the deployable element
+            in the `attribute_driven_domain` recipe.
+* Bug     : Ensure that the 'min_memory' config value on the glassfish
+            domain is reflected from the configuration onto the domain
+            LWRP in the `attribute_driven_domain` recipe.
+* Bug     : Rework the destroy action on the `glassfish_domain` LWRP to
+            avoid invoking the asadmin command and potentially failing
+            if the domain is in an inconsistent state.
+* Bug     : Ensure that libraries cached copy is unique per domain to avoid
+            scenario where file can be owned by a different domain.
 * Enhance : Support the specification of different system users for each
             glassfish domain in all the LWRPs and the
             `attribute_driven_domain` recipe.
