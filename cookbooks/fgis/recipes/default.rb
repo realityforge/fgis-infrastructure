@@ -33,3 +33,6 @@ node.override['java']['jdk_version'] = '7'
 include_recipe 'java::default'
 
 include_recipe 'fgis::_glassfish'
+
+node.override['tomcat']['instances']['baz'] = {}
+include_recipe 'tomcat::attribute_driven'
