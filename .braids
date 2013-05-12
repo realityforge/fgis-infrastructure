@@ -7,6 +7,13 @@
     "type": "git",
     "url": "git://github.com/opscode-cookbooks/apt.git"
   },
+  "cookbooks/archive": {
+    "url": "git@github.com:realityforge/chef-archive.git",
+    "remote": "master/braid/cookbooks/archive",
+    "branch": "master",
+    "squashed": true,
+    "revision": "d431b7e623470084e94a0228ddaacef6e5cbd16e"
+  },
   "cookbooks/ark": {
     "url": "git@github.com:opscode-cookbooks/ark.git",
     "remote": "master/braid/cookbooks/ark",
