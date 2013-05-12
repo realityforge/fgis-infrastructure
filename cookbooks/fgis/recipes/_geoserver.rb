@@ -12,11 +12,10 @@
 # limitations under the License.
 #
 
-node.override['geoserver']['user'] = node.override['glassfish']['domains']['geo']['config']['system_user'] = 'fgis'
-node.override['geoserver']['group'] = node.override['glassfish']['domains']['geo']['config']['system_group'] = 'fgis'
+node.override['geoserver']['user'] = node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']]['config']['system_user']
+node.override['geoserver']['group'] = node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']]['config']['system_group']
 
 node.override['geoserver']['git']['config_repository'] = nil#'git://github.com/rhok-melbourne/fgis-geoserver.git'
-node.override['geoserver']['glassfish']['domain'] = 'geo'
 node.override['geoserver']['users']['admin']['password'] = 'geoserver'
 node.override['geoserver']['users']['admin']['role'] = 'ROLE_ADMINISTRATOR'
 
