@@ -205,7 +205,7 @@ action :create do
   end
 
   service "tomcat-#{new_resource.instance_name}" do
-    action [:start]
+    action [:enable, :start]
   end
 end
 
