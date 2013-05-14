@@ -34,6 +34,7 @@ action :create do
     version version
     owner new_resource.system_user
     group new_resource.system_group
+    extract_action 'unzip' if new_resource.unpack_war.to_s == "true"
   end
 
   service "tomcat-#{new_resource.instance_name}" do

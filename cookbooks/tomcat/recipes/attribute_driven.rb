@@ -55,6 +55,7 @@ node['tomcat']['instances'].each_pair do |instance_name, definition|
       url configuration['url']
       version configuration['version'] if configuration['version']
       path configuration['path'] if configuration['path']
+      unpack_war configuration['unpack_war'] if configuration['unpack_war']
       instance_name instance_name
       system_user system_username if system_username
       system_group system_group if system_group

@@ -44,6 +44,8 @@ attribute :url, :kind_of => String, :default => nil
 #<> @attribute path The url path under which to register web application.
 attribute :path, :kind_of => String, :default => nil
 
+attribute :unpack_war, :equal_to => [true, false, 'true', 'false'], :default => 'false'
+
 #<> @attribute instance_name The name of the tomcat instance.
 attribute :instance_name, :kind_of => String, :name_attribute => true
 #<> @attribute system_user The user that the domain executes as. Defaults to `node['glassfish']['user']` if unset.
@@ -58,4 +60,3 @@ def initialize(*args)
   @system_user = node['tomcat']['user']
   @system_group = node['tomcat']['group']
 end
-
