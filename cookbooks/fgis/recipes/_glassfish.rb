@@ -12,9 +12,10 @@
 # limitations under the License.
 #
 
-node.override['geoserver']['glassfish']['domain'] = 'geo2'
+domain_name = 'geo2'
+node.override['geoserver']['glassfish']['domain'] = domain_name
 
-node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']] =
+node.override['glassfish']['domains'][domain_name] =
   {
     'config' => {
       'min_memory' => 412,
@@ -66,5 +67,8 @@ node.override['glassfish']['domains'][node['geoserver']['glassfish']['domain']] 
       }
     },
   }
+
+node.override['geoserver']['user'] = node['glassfish']['domains'][domain_name]['config']['system_user']
+node.override['geoserver']['group'] = node['glassfish']['domains'][domain_name]['config']['system_group']
 
 include_recipe 'glassfish::attribute_driven_domain'
