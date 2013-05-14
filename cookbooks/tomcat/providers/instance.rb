@@ -158,7 +158,10 @@ action :create do
 
   [
     instance_dir_path,
+    "#{instance_dir_path}/applications",
     "#{instance_dir_path}/conf",
+    "#{instance_dir_path}/conf/Catalina",
+    "#{instance_dir_path}/conf/Catalina/localhost",
     "#{instance_dir_path}/logs",
     "#{instance_dir_path}/lib",
     "#{instance_dir_path}/lib/ext",
