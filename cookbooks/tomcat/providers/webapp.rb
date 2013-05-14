@@ -66,7 +66,7 @@ action :destroy do
     action :delete
   end
 
-  file "#{instance_dir_path}/webapps/#{new_resource.webapp_name}.xml" do
+  file "#{instance_dir_path}/conf/Catalina/localhost/#{new_resource.webapp_name}.xml" do
     action :delete
     notifies :restart, "service[tomcat-#{new_resource.instance_name}]", :delayed
   end
