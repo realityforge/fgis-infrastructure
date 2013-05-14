@@ -49,6 +49,17 @@ node['tomcat']['instances'].each_pair do |instance_name, definition|
     system_user system_username if system_username
     system_group system_group if system_group
   end
+
+  (definition['webapps'] || {}).each_pair do |webapp_name, configuration|
+    tomcat_webapp webapp_name do
+      url configuration['url']
+      version configuration['version'] if configuration['version']
+      path configuration['path'] if configuration['path']
+      instance_name instance_name
+      system_user system_username if system_username
+      system_group system_group if system_group
+    end
+  end
 end
 
 instance_names = node['tomcat']['instances'].keys
