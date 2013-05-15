@@ -223,7 +223,7 @@ action :destroy do
     action :delete
   end
 
-  file "/etc/init/glassfish-#{new_resource.instance_name}.conf" do
+  file "/etc/init/tomcat-#{new_resource.instance_name}.conf" do
     action :delete
   end
 end
