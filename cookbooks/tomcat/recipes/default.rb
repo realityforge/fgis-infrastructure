@@ -55,10 +55,11 @@ mkdir /tmp/tomcat
 cd /tmp/tomcat
 tar xzf #{cached_package_filename}
 mkdir -p #{node['tomcat']['base_dir']}
-mv apache-tomcat-#{node['tomcat']['version']}/lib #{node['tomcat']['base_dir']}/
-mv apache-tomcat-#{node['tomcat']['version']}/bin #{node['tomcat']['base_dir']}/
+mv apache-tomcat-* apache-tomcat
+mv apache-tomcat/lib #{node['tomcat']['base_dir']}/
+mv apache-tomcat/bin #{node['tomcat']['base_dir']}/
 rm -f #{node['tomcat']['base_dir']}/bin/*.bat
-rm -rf mv apache-tomcat-#{node['tomcat']['version']}
+rm -rf mv apache-tomcat
 chown -R #{node['tomcat']['user']} #{node['tomcat']['base_dir']}
 chgrp -R #{node['tomcat']['group']} #{node['tomcat']['base_dir']}
 chmod -R ugo-w #{node['tomcat']['base_dir']}
