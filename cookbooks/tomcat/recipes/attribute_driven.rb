@@ -91,14 +91,20 @@ end
 
 instance_names = node['tomcat']['instances'].keys
 
-Dir["#{node['tomcat']['instances_dir']}/*"].
-  select { |file| File.directory?(file) }.
-  select { |file| !instance_names.include?(File.basename(file)) }.
-  each do |file|
+service_definitions =
+  Dir["/etc/init/tomcat-*.conf"].
+    collect { |file| file[17, file.length-5-17] }.
+    select { |file| !instance_names.include?(File.basename(file)) }
 
-  Chef::Log.info "Removing historic Tomcat Instance #{File.basename(file)}"
+existing_dirs =
+  Dir["#{node['tomcat']['instances_dir']}/*"].
+    select { |file| File.directory?(file) }.
+    select { |file| !instance_names.include?(File.basename(file)) }.
+    collect { |file| File.basename(file) }
 
-  tomcat_instance File.basename(file) do
+(service_definitions + existing_dirs).sort.uniq.each do |instance|
+  Chef::Log.info "Removing historic Tomcat Instance #{instance}"
+  tomcat_instance instance do
     action :destroy
   end
 end
