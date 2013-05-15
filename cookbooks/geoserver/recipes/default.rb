@@ -43,6 +43,3 @@ test -f geoserver-#{node['geoserver']['version']}.war
 end
 
 include_recipe 'geoserver::_setup_data_dir'
-if node['geoserver']['glassfish']['domain']
-  include_recipe 'geoserver::_setup_glassfish'
-end
