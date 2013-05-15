@@ -48,9 +48,9 @@ attribute :unpack_war, :equal_to => [true, false, 'true', 'false'], :default => 
 
 #<> @attribute instance_name The name of the tomcat instance.
 attribute :instance_name, :kind_of => String, :name_attribute => true
-#<> @attribute system_user The user that the domain executes as. Defaults to `node['glassfish']['user']` if unset.
+#<> @attribute system_user The user that the domain executes as. Defaults to `node['tomcat']['user']` if unset.
 attribute :system_user, :kind_of => String, :default => nil
-#<> @attribute system_group The group that the domain executes as. Defaults to `node['glassfish']['group']` if unset.
+#<> @attribute system_group The group that the domain executes as. Defaults to `node['tomcat']['group']` if unset.
 attribute :system_group, :kind_of => String, :default => nil
 
 default_action :create
