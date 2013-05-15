@@ -22,3 +22,4 @@ version          '0.4.0'
 supports 'ubuntu'
 
 suggests 'glassfish'
+suggests 'tomcat'
