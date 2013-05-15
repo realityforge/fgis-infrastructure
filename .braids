@@ -99,6 +99,6 @@
     "remote": "master/braid/cookbooks/tomcat",
     "branch": "master",
     "squashed": true,
-    "revision": "0d81d4ba91dacebf9142464eaeead50a7660cc3f"
+    "revision": "d0ab7e16ed4b543c5d9b0be6a08a2e91e4c23511"
   }
 }
