@@ -12,6 +12,9 @@
 # limitations under the License.
 #
 
+raise "Undefined attribtue node['geoserver']['user']" unless node['geoserver']['user']
+raise "Undefined attribtue node['geoserver']['group']" unless node['geoserver']['group']
+
 directory node['geoserver']['base_dir'] do
   owner node['geoserver']['user']
   group node['geoserver']['group']
