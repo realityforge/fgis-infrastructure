@@ -16,6 +16,14 @@
 
 include_recipe 'tomcat::default'
 
+node['tomcat']['instances'].each_pair do |domain_key, definition|
+  if definition['recipes'] && definition['recipes']['before']
+    definition['recipes']['before'].each do |recipe|
+      include_recipe recipe
+    end
+  end
+end
+
 node['tomcat']['instances'].each_pair do |instance_name, definition|
   instance_name = instance_name.to_s
 
@@ -51,6 +59,11 @@ node['tomcat']['instances'].each_pair do |instance_name, definition|
   end
 
   (definition['webapps'] || {}).each_pair do |webapp_name, configuration|
+    if configuration['recipes'] && configuration['recipes']['before']
+      configuration['recipes']['before'].each do |recipe|
+        include_recipe recipe
+      end
+    end
     tomcat_webapp webapp_name do
       url configuration['url']
       version configuration['version'] if configuration['version']
@@ -59,6 +72,19 @@ node['tomcat']['instances'].each_pair do |instance_name, definition|
       instance_name instance_name
       system_user system_username if system_username
       system_group system_group if system_group
+    end
+    if configuration['recipes'] && configuration['recipes']['after']
+      configuration['recipes']['after'].each do |recipe|
+        include_recipe recipe
+      end
+    end
+  end
+end
+
+node['tomcat']['instances'].each_pair do |domain_key, definition|
+  if definition['recipes'] && definition['recipes']['after']
+    definition['recipes']['after'].each do |recipe|
+      include_recipe recipe
     end
   end
 end
