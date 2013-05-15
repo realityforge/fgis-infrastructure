@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 
-node.override['geoserver']['git']['config_repository'] = nil#'git://github.com/rhok-melbourne/fgis-geoserver.git'
+node.override['geoserver']['git']['config_repository'] = 'https://github.com/realityforge-experiments/fgis-geoserver.git'
 node.override['geoserver']['users']['admin']['password'] = 'geoserver'
 node.override['geoserver']['users']['admin']['role'] = 'ROLE_ADMINISTRATOR'
 
