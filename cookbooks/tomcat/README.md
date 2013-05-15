@@ -1,181 +1,118 @@
-Description
-===========
+# Description
 
-Installs and configures the Tomcat, Java servlet engine and webserver.
+[![Build Status](https://secure.travis-ci.org/realityforge/chef-tomcat.png?branch=master)](http://travis-ci.org/realityforge/chef-tomcat)
 
+The tomcat cookbook installs and configures the Tomcat application server. The cookbook contains LWRPs to create
+and configure Tomcat instances and deploy resources into the container.
 
-Requirements
-============
+# Requirements
 
-Platform: 
+## Platform:
 
-* CentOS, Red Hat, Fedora (OpenJDK)
+* Ubuntu
 
-The following Opscode cookbooks are dependencies:
+## Cookbooks:
 
-* java, ark, maven
+* java
+* archive
 
+# Attributes
 
-Attributes
-==========
+* `node['tomcat']['user']` - The user that owns the Tomcat binaries. Defaults to `tomcat`.
+* `node['tomcat']['group']` - The group allowed to manage Tomcat domains. Defaults to `tomcat-admin`.
+* `node['tomcat']['package_url']` - The url to the Tomcat install package. Defaults to `http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.32/bin/apache-tomcat-7.0.32.tar.gz`.
+* `node['tomcat']['base_dir']` - The base directory of the Tomcat install. Defaults to `/usr/local/tomcat`.
+* `node['tomcat']['instances_dir']` - The directory containing all the instances. Defaults to `/srv/tomcat`.
+* `node['tomcat']['instances']` - A map of instance definitions used by the attribute_driven recipe. Defaults to `{}`.
 
-* prefix_dir - /usr/local/, /var/lib/, etc.
+# Recipes
 
-Recipes
-=======
+* [tomcat::default](#tomcatdefault) - Installs Tomcat binaries.
+* tomcat::attribute_driven - Configures 0 or more Tomcat instances using the tomcat/instances attribute.
 
-* default.rb -- installs tomcat via debian package only on a
-debian based distribution. Otherwise installs via tomcat7_binary.rb
-* package.rb -- installs tomcat7 unless node['tomcat']['version'] set
-to 6. The package typically installs a system service.
-* ark.rb installs a vanilla tomcat and creates a service
-* base.rb  installs the tomcat from the binary provided by
-tomcat.apache.org, will use version 7 unless node['tomcat']['version'] set
-to 6. No tomcat service is installed.
+## tomcat::default
 
-All of the default webapps such as "ROOT" and "manager" are removed in the tomcat::ark recipe
+Downloads, and extracts the tomcat binaries, creates the tomcat user and group.
 
-ark
----
+# Resources
 
-This recipe creates a vanilla tomcat installation based on the tarball
-of bytecode available from http://tomcat.apache.org and places it in 
-${prefix_dir}. Additionally, it configures a system v
-init script and creates the symlink
+* [_instance](#_instance) - Creates a Tomcat instance, creates an OS-level service and starts the service.
+* [_webapp](#_webapp) - Creates a Tomcat instance, creates an OS-level service and starts the service.
 
-    ${prefix_dir}/tomcat/default -> ${prefix_dir}/tomcat/tomcat{6,7}
+## _instance
 
+Creates a Tomcat instance, creates an OS-level service and starts the service.
 
-base
-----
+### Actions
 
-It creates an installation of tomcat to prefix_dir. It does very
-little besides that.
+- create: Create the instance, enable and start the associated service. Default action.
+- destroy: Stop the associated service and delete the instance directory and associated artifacts.
 
-By default it uses the tomcat 7 by including tomcat7 recipe
+### Attribute Parameters
 
-This recipe is intended to be used together with the CATALINA_BASE method to install
-multiple tomcat instances that use the same set of tomcat installation
-files. This recipe does not add any services. It is intended to be used together with the tomcat lwrp.
+- min_memory:  Defaults to <code>512</code>.
+- max_memory: The amount of heap memory to allocate to the domain in MiB. Defaults to <code>512</code>.
+- max_perm_size: The amount of perm gen memory to allocate to the domain in MiB. Defaults to <code>96</code>.
+- max_stack_size: The amount of stack memory to allocate to the domain in KiB. Defaults to <code>256</code>.
+- http_port: The port on which the HTTP service will bind. Defaults to <code>8080</code>.
+- ajp_port: The port on which the AJP service will bind. Defaults to <code>8009</code>.
+- ssl_port: The port on which the SSL service will bind. Defaults to <code>8443</code>.
+- shutdown_port: The port which used to shutdown the instance. Defaults to <code>8005</code>.
+- extra_jvm_options: An array of extra arguments to pass the JVM. Defaults to <code>[]</code>.
+- env_variables: A hash of environment variables set when running the domain. Defaults to <code>{}</code>.
+- instance_name: The name of the tomcat instance.
+- logging_properties: A hash of properties that will be merged into logging.properties. Use this to send logs to syslog or graylog. Defaults to <code>{}</code>.
+- system_user: The user that the domain executes as. Defaults to `node['glassfish']['user']` if unset. Defaults to <code>nil</code>.
+- system_group: The group that the domain executes as. Defaults to `node['glassfish']['group']` if unset. Defaults to <code>nil</code>.
 
-    ${prefix_dir}/tomcat/tomcat{6,7}  # CATALINA_HOME
+### Examples
 
-and creates a symlink to that directory
+    # Create a basic tomcat instance that logs to a central graylog server
+    tomcat_instance "my_domain" do
+      http_port 80
+      extra_libraries ['https://github.com/downloads/realityforge/gelf4j/gelf4j-0.9-all.jar']
+      logging_properties {
+        "handlers" => "java.util.logging.ConsoleHandler, gelf4j.logging.GelfHandler",
+        ".level" => "INFO",
+        "java.util.logging.ConsoleHandler.level" => "INFO",
+        "gelf4j.logging.GelfHandler.level" => "ALL",
+        "gelf4j.logging.GelfHandler.host" => 'graylog.example.org',
+        "gelf4j.logging.GelfHandler.defaultFields" => '{"environment": "' + node.chef_environment + '", "facility": "MyDomain"}'
+      }
+    end
 
-    ${prefix_dir}/tomcat/default -> ${prefix_dir}/tomcat/tomcat{6,7}
+## _webapp
 
+Creates a Tomcat instance, creates an OS-level service and starts the service.
 
+### Actions
 
-Resources/Providers
-===================
+- create: Create the web application. Default action.
+- destroy: Destroy the web application.
 
-tomcat
+### Attribute Parameters
 
-# Actions
+- webapp_name: The name of the web application.
+- version: The version of the war file. Defaults to <code>nil</code>.
+- url: The url of the war file. Defaults to <code>nil</code>.
+- path: The url path under which to register web application. Defaults to <code>nil</code>.
+- unpack_war:  Defaults to <code>"false"</code>.
+- instance_name: The name of the tomcat instance.
+- system_user: The user that the domain executes as. Defaults to `node['tomcat']['user']` if unset. Defaults to <code>nil</code>.
+- system_group: The group that the domain executes as. Defaults to `node['tomcat']['group']` if unset. Defaults to <code>nil</code>.
 
-- :install: install
-- :remove: remove the instance
+### Examples
 
-# Attribute Parameters
+    tomcat_webapp "my_application" do
+      version '1.2'
+      url 'http://example.com/my_application-1.2.war']
+      instance 'my_app_domain'
+      system_user 'tomcat'
+      system_group 'tomcat'
+    end
 
-- http_port: port_num or true/false, default to true and 8080
-- ajp_port:  port_num or true/false, default to true and 8009
-- shutdown_port: port_num or true/false, default to 8005
-- host_name: name for Host element, defaults to localhost
-- session_timeout: global session timeout set in conf/web.xml
-- unpack_wars: defaults to true
-- auto_deploy: defaults to true
-- jvm_opts: Array of options for the JVM
-- jmx_opts: Array of JMX monitoring options
-- jmx_access: String containing username and access permissions, will
-  be written to the jmxremote.access file
-- jmx_password: String containing username and password, will
-  be written to the jmxremote.password file
-- jmx_access_file: the file that the access role and permissions will
-  be written to, defaults to `CATALINA_BASE/conf/jmxremote.access`
-- jmx_password_file: the file that the username and password will
-  be written to, defaults to `CATALINA_BASE/conf/jmxremote.password`
-- manage_config_file: whether to update the configuration files
-  /etc/default/app_name, `CATALINA_BASE/conf/server.xml`, and
-  /etc/init.d/app_name after initial creation. If false, those files
-  will not be changed after initial templating. Useful if you have
-  devs who want control of their tomcat instance but don't want to
-  learn chef. Great for massive configuration drift.
-- webapp_opts: (Deprecated) Array of directives passed to a webapp
-- more_opts: (Deprecated) crap that doesn't fit anywhere else
-- service_name: an alternate name for the init script, useful if you are using
-  a clustering tool like Pacemaker or heartbeat to manage the tomcat
-  service
-- clustered: set to true if you do not want the tomcat service to
-  start automatically, defaults to false
-- env: environment variables to export in init script
-- user: user to run the tomcat as
-- shutdown_wait: how long the shutdown script should wait before
-  killing the process
+# License and Maintainer
 
+Maintainer:: Peter Donald
 
-An exception will be thrown if one of the values specified by *_port
-is already in use by another tomcat lwrp
-
-### Example
-
-```
-tomcat "pentaho" do
-  http_port  false
-  https_port "8443"
-  version    "7"
-end
-```
-
-To deploy a webapp to the new tomcat, you use a deploy resource or a
-maven resource (coming soon).
-
-### Example using JMX
-
-```
-tomcat "liferay" do
-  user liferay_user
-  action :install
-  jvm_opts node['liferay']['jvm_opts']
-  jmx_opts node['liferay']['jmx_opts']
-  jmx_access node['liferay']['jmx_access']
-  jmx_password node['liferay']['jmx_password']
-end
-```
-
-
-### Clustered configuration
-
-```
-tomcat "liferay" do
-  user liferay_user
-  action :install
-  jvm_opts node['liferay']['jvm_opts']
-  service_name "liferay-tomcat"
-  clustered true
-end
-```
-
-
-TODO
-====
-
-
-License and Author
-==================
-
-Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
-
-Copyright:: 2012, Bryan W. Berry
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+License:: Apache 2.0
