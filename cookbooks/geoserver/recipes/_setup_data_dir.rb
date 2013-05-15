@@ -29,17 +29,3 @@ else
     mode 0700
   end
 end
-
-directory "#{node['geoserver']['data_dir']}/security" do
-  owner node['geoserver']['user']
-  group node['geoserver']['group']
-  mode 0700
-end
-
-template "#{node['geoserver']['data_dir']}/security/users.properties" do
-  source 'users.properties.erb'
-  mode 0700
-  user node['geoserver']['user']
-  group node['geoserver']['group']
-  variables(:users => node['geoserver']['users'])
-end
