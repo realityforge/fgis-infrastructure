@@ -12,11 +12,12 @@
 # limitations under the License.
 #
 
-instance = node['geoserver']['tomcat']['instance']
+instance_name = node['geoserver']['tomcat']['instance']
 
-node.override['tomcat']['instances'][instance]['config']['jvm_options'] = %W(-DGEOSERVER_DATA_DIR=#{node['geoserver']['data_dir']})
-node.override['tomcat']['instances'][instance]['webapps']['geoserver']['url'] = "file://#{node['geoserver']['base_dir']}/geoserver-#{node['geoserver']['version']}.war"
-node.override['tomcat']['instances'][instance]['webapps']['geoserver']['version'] = node['geoserver']['version']
-node.override['tomcat']['instances'][instance]['webapps']['geoserver']['path'] = node['geoserver']['glassfish']['root']
-
-include_recipe 'tomcat::attribute_driven'
+node.override['tomcat']['instances'][instance_name]['config']['jvm_options'] = %W(-DGEOSERVER_DATA_DIR=#{node['geoserver']['data_dir']})
+node.override['tomcat']['instances'][instance_name]['config']['system_user'] = node['geoserver']['user']
+node.override['tomcat']['instances'][instance_name]['config']['system_group'] = node['geoserver']['group']
+node.override['tomcat']['instances'][instance_name]['webapps']['geoserver']['url'] = "file://#{node['geoserver']['base_dir']}/geoserver-#{node['geoserver']['version']}.war"
+node.override['tomcat']['instances'][instance_name]['webapps']['geoserver']['version'] = node['geoserver']['version']
+node.override['tomcat']['instances'][instance_name]['webapps']['geoserver']['path'] = node['geoserver']['glassfish']['root']
+node.override['tomcat']['instances'][instance_name]['webapps']['geoserver']['unpack_war'] = 'true'
