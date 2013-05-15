@@ -15,9 +15,7 @@
 default['geoserver']['user'] = nil
 default['geoserver']['group'] = nil
 
-#Hmmm ... 2.2.4 does not seem to work in glassfish?
-version = '2.1.4'
-#version = '2.3.1'
+version = '2.3.1'
 default['geoserver']['version'] = version
 default['geoserver']['package_url'] = "http://downloads.sourceforge.net/geoserver/geoserver-#{version}-war.zip"
 
