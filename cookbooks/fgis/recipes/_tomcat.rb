@@ -12,17 +12,9 @@
 # limitations under the License.
 #
 
-instance_name = 'baz'
-node.override['tomcat']['instances'][instance_name]['config']['jvm_options'] = %W(-DGEOSERVER_DATA_DIR=#{node['geoserver']['data_dir']})
-node.override['tomcat']['instances'][instance_name]['config']['system_user'] = 'fgis2'
-node.override['tomcat']['instances'][instance_name]['config']['system_group'] = 'fgis2'
-node.override['tomcat']['instances'][instance_name]['webapps']['geoserver']['url'] = "file://#{node['geoserver']['base_dir']}/geoserver-#{node['geoserver']['version']}.war"
-node.override['tomcat']['instances'][instance_name]['webapps']['geoserver']['version'] = node['geoserver']['version']
-node.override['tomcat']['instances'][instance_name]['webapps']['geoserver']['path'] = node['geoserver']['glassfish']['root']
-node.override['tomcat']['instances'][instance_name]['webapps']['geoserver']['unpack_war'] = 'true'
+instance_name = 'geo'
+node.override['geoserver']['tomcat']['instance'] = instance_name
+include_recipe 'geoserver::_setup_tomcat'
 node.override['tomcat']['instances'][instance_name]['webapps']['geoserver']['recipes']['before'] = %w(fgis::_geoserver)
-
-node.override['geoserver']['user'] = node['tomcat']['instances'][instance_name]['config']['system_user']
-node.override['geoserver']['group'] = node['tomcat']['instances'][instance_name]['config']['system_group']
 
 include_recipe 'tomcat::attribute_driven'

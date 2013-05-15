@@ -26,9 +26,7 @@ node.override['glassfish']['domains'][domain_name] =
       'max_stack_size' => 200,
       'username' => 'geo_admin',
       'password' => 'G3TzM3Inith!PLZ',
-      'remote_access' => 'true',
-      'system_user' => 'fgis2',
-      'system_group' => 'fgis2'
+      'remote_access' => 'true'
     },
     'extra_libraries' => {
       'postgresql' => 'http://jdbc.postgresql.org/download/postgresql-9.2-1002.jdbc4.jar'
@@ -68,7 +66,5 @@ node.override['glassfish']['domains'][domain_name] =
     },
   }
 
-node.override['geoserver']['user'] = node['glassfish']['domains'][domain_name]['config']['system_user']
-node.override['geoserver']['group'] = node['glassfish']['domains'][domain_name]['config']['system_group']
-
+include_recipe 'geoserver::_setup_tomcat'
 include_recipe 'glassfish::attribute_driven_domain'
