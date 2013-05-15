@@ -31,3 +31,6 @@ default['geoserver']['glassfish']['domain'] = nil
 default['geoserver']['glassfish']['root'] = '/geoserver'
 
 default['geoserver']['users'] = Mash.new
+
+default['geoserver']['tomcat']['instance'] = nil
+default['geoserver']['tomcat']['root'] = '/geoserver'
