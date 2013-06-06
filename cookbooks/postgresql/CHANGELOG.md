@@ -1,3 +1,22 @@
+## v3.0.0:
+
+This is a backwards-incompatible release because the Pitti PPA is
+deprecated and the recipe removed, replaced with the PGDG apt
+repository.
+
+### Bug
+
+- [COOK-2571]: Create helper library for pg extension detection
+- [COOK-2797]: Contrib extension contianing '-' fails to load.
+
+### Improvement
+
+- [COOK-2387]: Pitti Postgresql PPA is deprecated
+
+### Task
+
+- [COOK-3022]: update baseboxes in .kitchen.yml
+
 ## v2.4.0:
 
 * [COOK-2163] - Dangerous "assign-postgres-password" in "recipes/server.rb" -- Can lock out dbadmin access

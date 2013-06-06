@@ -16,6 +16,8 @@
 # limitations under the License.
 #
 
+include Chef::Mixin::ShellOut
+
 module Opscode
   module PostgresqlHelpers
 
@@ -289,6 +291,86 @@ def select_default_timezone(tzdir)
     return system_timezone
 end
 
-# End the Opscode::PostgresqlHelper module
+#######
+# Function to determine the name of the system's default timezone.
+def get_result_orig(query)
+  # query could be a String or an Array of String
+  if (query.is_a?(String))
+    stdin = query
+  else
+    stdin = query.join("\n")
+  end
+  @get_result ||= begin
+    cmd = shell_out("cat", :input => stdin)
+    cmd.stdout
+  end
+end
+
+#######
+# Function to execute an SQL statement in the template1 database.
+#   Input: Query could be a single String or an Array of String.
+#   Output: A String with |-separated columns and \n-separated rows.
+#           Note an empty output could mean psql couldn't connect.
+# This is easiest for 1-field (1-row, 1-col) results, otherwise
+# it will be complex to parse the results.
+def execute_sql(query)
+  # query could be a String or an Array of String
+  statement = query.is_a?(String) ? query : query.join("\n")
+  @execute_sql ||= begin
+    cmd = shell_out("psql -q --tuples-only --no-align -d template1 -f -",
+          :user => "postgres",
+          :input => statement
+    )
+    # If psql fails, generally the postgresql service is down.
+    # Instead of aborting chef with a fatal error, let's just
+    # pass these non-zero exitstatus back as empty cmd.stdout.
+    if (cmd.exitstatus() == 0 and !cmd.stderr.empty?)
+      # An SQL failure is still a zero exitstatus, but then the
+      # stderr explains the error, so let's rais that as fatal.
+      Chef::Log.fatal("psql failed executing this SQL statement:\n#{statement}")
+      Chef::Log.fatal(cmd.stderr)
+      raise "SQL ERROR"
+    end
+    cmd.stdout.chomp
+  end
+end
+
+#######
+# Function to determine if a standard contrib extension is already installed.
+#   Input: Extension name
+#   Output: true or false
+# Best use as a not_if gate on bash "install-#{pg_ext}-extension" resource.
+def extension_installed?(pg_ext)
+  @extension_installed ||= begin
+    installed=execute_sql("select 'installed' from pg_extension where extname = '#{pg_ext}';")
+    installed =~ /^installed$/
+  end
+end
+
+######################################
+# Function to build information needed to install RPM for PGDG yum repository,
+# since PGDG supports several versions of PostgreSQL, platforms, platform versions
+# and architectures.
+# Links to RPMs for installation are in an attribute so that new versions/platforms
+# can be more easily added. (See attributes/default.rb)
+def pgdgrepo_rpm_info
+  repo_rpm_url = node['postgresql']['pgdg']['repo_rpm_url'].
+    fetch(node['postgresql']['version']).            # e.g., fetch for "9.1"
+    fetch(node['platform']).                         # e.g., fetch for "centos"
+    fetch(node['platform_version'].to_f.to_i.to_s).  # e.g., fetch for "5" (truncated "5.7")
+    fetch(node['kernel']['machine'])                 # e.g., fetch for "i386" or "x86_64"
+
+  # Extract the filename portion from the URL for the PGDG repository RPM.
+  # E.g., repo_rpm_filename = "pgdg-centos92-9.2-6.noarch.rpm"
+  repo_rpm_filename = File.basename(repo_rpm_url)
+
+  # Extract the package name from the URL for the PGDG repository RPM.
+  # E.g., repo_rpm_package = "pgdg-centos92"
+  repo_rpm_package = repo_rpm_filename.split(/-/,3)[0..1].join('-')
+
+  return [ repo_rpm_url, repo_rpm_filename, repo_rpm_package ]
+end
+
+# End the Opscode::PostgresqlHelpers module
   end
 end
