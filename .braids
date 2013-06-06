@@ -70,6 +70,13 @@
     "type": "git",
     "url": "git://github.com/opscode-cookbooks/openssl.git"
   },
+  "cookbooks/partial_search": {
+    "url": "https://github.com/opscode-cookbooks/partial_search.git",
+    "remote": "master/braid/cookbooks/partial_search",
+    "branch": "master",
+    "squashed": true,
+    "revision": "9a96d68a4af2eff1cf5d3e8ed7ff2ede723a09c8"
+  },
   "cookbooks/postgis": {
     "branch": "master",
     "remote": "master/braid/cookbooks/postgis",
