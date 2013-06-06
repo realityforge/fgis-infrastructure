@@ -1,4 +1,16 @@
 ## v0.5.26:
+* Bug     : Support non-string "value" parameters in `attribute_driven_domain`
+            for `custom_resource` elements and `web_env_entries` elements.
+* Enhance : Sort elements within the `attribute_driven_domain` recipe in each
+            section by a priority field if present. The default priority
+            is 100 if unspecified.
+* Change  : Convert hooks for including recipes in the
+            `attribute_driven_recipe` from being an array of recipes
+            to a hash where the key is the recipe name. Improves the
+            interoperability with deep merges.
+* Enhance : Ensure that the parameters of the `glassfish_jdbc_connection_pool`
+            LWRP and the `glassfish_jdbc_resource` are updated even if the
+            resource exists.
 * Bug     : Enable the Glassfish domain service aswell as starting it.
 * Enhance : Remove domains in the `attribute_driven_domain` recipe
             when there is no longer any configuration to represent
