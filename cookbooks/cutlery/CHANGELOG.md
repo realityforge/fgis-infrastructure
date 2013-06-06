@@ -1,3 +1,11 @@
+## 0.2.6:
+
+* Add a utility class for accessing configuration for "services".
+  Useful for storing configuration in a node or data bags as a
+  poor mans service registry.
+* Update `Chef::SearchBlender.blend_search_results_into_node`
+  to use partial search where available.
+
 ## 0.2.2:
 
 * Add utility method to blend attribute value into path via
