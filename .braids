@@ -101,6 +101,13 @@
     "type": "git",
     "url": "git://github.com/realityforge/chef-psql.git"
   },
+  "cookbooks/sqlshell": {
+    "url": "https://github.com/realityforge/chef-sqlshell.git",
+    "remote": "master/braid/cookbooks/sqlshell",
+    "branch": "master",
+    "squashed": true,
+    "revision": "e8fb8810638c86d4dbacfeaff711bc07454e158f"
+  },
   "cookbooks/tomcat": {
     "url": "git@github.com:realityforge/chef-tomcat.git",
     "remote": "master/braid/cookbooks/tomcat",
