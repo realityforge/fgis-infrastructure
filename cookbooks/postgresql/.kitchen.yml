@@ -7,26 +7,26 @@ platforms:
 - name: ubuntu-12.04
   driver_config:
     box: opscode-ubuntu-12.04
-    box_url: https://opscode-vm.s3.amazonaws.com/vagrant/opscode_ubuntu-12.04_provisionerless.box
+    box_url: https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_ubuntu-12.04_provisionerless.box
   run_list:
   - recipe[apt]
 
 - name: ubuntu-10.04
   driver_config:
     box: opscode-ubuntu-10.04
-    box_url: https://opscode-vm.s3.amazonaws.com/vagrant/opscode_ubuntu-10.04_provisionerless.box
+    box_url: https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_ubuntu-10.04_provisionerless.box
   run_list:
   - recipe[apt]
 
 - name: centos-6.4
   driver_config:
     box: opscode-centos-6.4
-    box_url: https://opscode-vm.s3.amazonaws.com/vagrant/opscode_centos-6.4_provisionerless.box
+    box_url: https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_centos-6.4_provisionerless.box
 
 - name: centos-5.9
   driver_config:
     box: opscode-centos-5.9
-    box_url: https://opscode-vm.s3.amazonaws.com/vagrant/opscode_centos-5.9_provisionerless.box
+    box_url: https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_centos-5.9_provisionerless.box
 
 suites:
 - name: default
@@ -86,6 +86,7 @@ suites:
 - name: apt-pgdg-server
   run_list:
   - recipe[minitest-handler]
+  - recipe[postgresql::ruby]
   - recipe[postgresql::server]
   excludes: ["centos-5.9", "centos-6.4"]
   attributes:
@@ -103,6 +104,7 @@ suites:
 - name: yum-pgdg-server
   run_list:
   - recipe[minitest-handler]
+  - recipe[postgresql::ruby]
   - recipe[postgresql::server]
   excludes: ["ubuntu-10.04", "ubuntu-12.04", "debian-6.0.7"]
   attributes:
