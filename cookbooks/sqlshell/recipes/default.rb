@@ -15,3 +15,8 @@
 #
 
 include_recipe 'java::default'
+
+archive 'sqlshell' do
+  url node['sqlshell']['package']['url']
+  version node['sqlshell']['package']['version']
+end
