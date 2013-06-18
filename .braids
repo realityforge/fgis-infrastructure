@@ -12,7 +12,7 @@
     "remote": "master/braid/cookbooks/archive",
     "branch": "master",
     "squashed": true,
-    "revision": "0532c57795d0cbb7c508a827bfe8e557c0d220fe"
+    "revision": "cacc60e424aeceb0ab97eda107678bb0aa57ffb0"
   },
   "cookbooks/authbind": {
     "branch": "master",
