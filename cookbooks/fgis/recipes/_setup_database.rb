@@ -30,11 +30,24 @@ node.override['postgresql']['config']['listen_addresses'] = '0.0.0.0'
 
 include_recipe 'postgis::default'
 
-psql_user node['fgis']['database']['username'] do
-  host node['fqdn']
-  port node['postgresql']['config']['port']
-  admin_username 'postgres'
-  admin_password node['postgresql']['password']['postgres']
+include_recipe 'sqlshell::default'
+
+jdbc_url = "jdbc:postgresql://#{node['fqdn']}:#{node['postgresql']['config']['port']}/#{node['fgis']['database']['db_name']}"
+jdbc_driver = 'org.postgresql.Driver'
+jdbc_properties =
+  {
+    'user' => node['fgis']['database']['username'],
+    'password' => node['fgis']['database']['password']
+  }
+admin_jdbc_properties =
+  { 'user' => 'postgres', 'password' => node['postgresql']['password']['postgres'] }
+
+sqlshell_pg_user "#{node['fgis']['database']['username']}3" do
+  jdbc_url jdbc_url
+  jdbc_driver jdbc_driver
+  extra_classpath ['http://jdbc.postgresql.org/download/postgresql-9.2-1002.jdbc4.jar']
+  jdbc_properties admin_jdbc_properties
+
   password node['fgis']['database']['password']
 end
 
