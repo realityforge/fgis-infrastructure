@@ -16,13 +16,8 @@
 
 =begin
 #<
-<<<<<<< HEAD
-Asadmin is the command line application used to manage a GlassFish application server. Typically this resource is
-used when there is not yet a resource defined in this cookbook for executing an underlying command on the server.
-=======
 Execute a sql command on the specified database. Typically this is used as an atomic component
 from which the other database automation elements are driven.
->>>>>>> 7e328bd3459d83011b616af6e724ec6f519d5244
 
 @action run Execute the command.
 
