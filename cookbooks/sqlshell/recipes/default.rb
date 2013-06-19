@@ -16,7 +16,14 @@
 
 include_recipe 'java::default'
 
-archive 'sqlshell' do
+a = archive 'sqlshell' do
   url node['sqlshell']['package']['url']
   version node['sqlshell']['package']['version']
 end
+
+node.override['sqlshell']['base_directory'] = a.base_directory
+node.override['sqlshell']['lib'] = "#{a.base_directory}/lib"
+
+directory node['sqlshell']['lib']
+
+node.override['sqlshell']['package']['local_archive'] = a.target_artifact
