@@ -49,9 +49,8 @@ attribute 'tomcat/group',
 
 attribute 'tomcat/package_url',
   :display_name => 'URL for Tomcat Package',
-  :description => 'The url to the Tomcat install package',
-  :type => 'string',
-  :default => 'http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.32/bin/apache-tomcat-7.0.32.tar.gz'
+  :description => 'The url to the Tomcat zip install package',
+  :type => 'string'
 
 attribute 'tomcat/base_dir',
   :display_name => 'Tomcat Base Directory',
