@@ -12,6 +12,8 @@
 # limitations under the License.
 #
 
+node.override['tomcat']['package_url'] = 'http://apache.mirror.uber.com.au/tomcat/tomcat-7/v7.0.41/bin/apache-tomcat-7.0.41.zip'
+
 instance_name = 'geo'
 node.override['geoserver']['tomcat']['instance'] = instance_name
 include_recipe 'geoserver::_setup_tomcat'
