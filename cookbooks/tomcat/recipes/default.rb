@@ -33,7 +33,7 @@ user node['tomcat']['user'] do
   system true
 end
 
-package_url = node['tomcat']['package_url']
+package_url = Chef::AttributeChecker.ensure_attribute(node, 'tomcat.package_url', String)
 base_package_filename = File.basename(package_url)
 cached_package_filename = "#{Chef::Config[:file_cache_path]}/#{base_package_filename}"
 check_proc = Proc.new { ::File.exists?(node['tomcat']['base_dir']) }

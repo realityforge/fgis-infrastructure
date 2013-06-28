@@ -24,6 +24,7 @@ version          "0.16.1"
 
 depends 'java'
 depends 'archive'
+depends 'cutlery'
 
 suggests 'authbind'
 
