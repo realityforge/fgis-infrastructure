@@ -32,7 +32,8 @@ include_recipe 'postgis::default'
 
 include_recipe 'sqlshell::default'
 
-jdbc_url = "jdbc:postgresql://#{node['fqdn']}:#{node['postgresql']['config']['port']}/#{node['fgis']['database']['db_name']}"
+jdbc_host_prefix = "jdbc:postgresql://#{node['fqdn']}:#{node['postgresql']['config']['port']}"
+jdbc_url = "#{jdbc_host_prefix}/postgres"
 jdbc_driver = 'org.postgresql.Driver'
 jdbc_properties =
   {
