@@ -53,7 +53,7 @@ bash 'unpack_tomcat' do
 rm -rf /tmp/tomcat
 mkdir /tmp/tomcat
 cd /tmp/tomcat
-tar xzf #{cached_package_filename}
+unzip -q -u -o #{cached_package_filename} || { echo 'Unpack failed' ; exit 1; }
 mkdir -p #{node['tomcat']['base_dir']}
 mv apache-tomcat-* apache-tomcat
 mv apache-tomcat/lib #{node['tomcat']['base_dir']}/
