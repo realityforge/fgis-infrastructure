@@ -48,6 +48,7 @@ action :add do
         group new_resource.group
         mode '0700'
       end
+      recursive (new_resource.base_directory == dir)
       action :create
     end
   end
@@ -85,6 +86,7 @@ action :add do
   elsif new_resource.extract_action.nil?
     if node['platform'] == 'windows'
       windows_batch 'move_package' do
+        not_if { check_proc.call }
         code "cp #{cached_package_filename} #{new_resource.target_artifact}"
       end
     else
@@ -117,7 +119,7 @@ action :add do
     action :create
   end
 
-  last_version = ::File.exist?(current_directory) ? ::File.readlink(current_directory) : nil
+  last_version = (::File.exist?(current_directory) && node['platform'] != 'windows') ? ::File.readlink(current_directory) : nil
 
   link current_directory do
     to new_resource.target_directory
