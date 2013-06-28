@@ -19,7 +19,6 @@ default['tomcat']['group'] = 'tomcat-admin'
 
 version = "7.0.32"
 default['tomcat']['package_url'] = "http://archive.apache.org/dist/tomcat/tomcat-#{version[0,1]}/v#{version}/bin/apache-tomcat-#{version}.tar.gz"
-default['tomcat']['package_checksum'] = 'c26ae0bc424e2639f5c77eb4d274a026c5a584a404dbdbb247ab6d2c3ebe8258'
 
 default['tomcat']['base_dir'] = '/usr/local/tomcat'
 default['tomcat']['instances_dir'] = '/srv/tomcat'
