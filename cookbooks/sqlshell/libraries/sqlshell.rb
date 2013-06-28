@@ -21,16 +21,23 @@ class Chef
       classpath = [node['sqlshell']['package']['local_archive']] + extra_classpath
 
       args = []
-      args << '-cp' << classpath.join(':')
+      args << '-cp' << classpath.join(::File::PATH_SEPARATOR)
       args << 'org.realityforge.sqlshell.Main'
       args << '--database-driver' << new_resource.jdbc_driver
       args << '-f' << input_file
       new_resource.jdbc_properties.each_pair do |key, value|
         args << '--database-property' << "#{key}=#{value}"
       end
-      args << "'#{new_resource.jdbc_url}'"
+      args << "\"#{new_resource.jdbc_url}\""
 
-      "#{node['java']['java_home']}/bin/java #{args.join(' ')}"
+      java_exe =
+        if node['platform'] == 'windows'
+          "\"#{node['java']['java_home']}\\bin\\java.exe\""
+        else
+          "#{node['java']['java_home']}/bin/java"
+        end
+
+      "#{java_exe} #{args.join(' ')}"
     end
 
     def sql_to_json(sql, extra_classpath)
