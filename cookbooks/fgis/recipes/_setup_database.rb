@@ -43,7 +43,7 @@ jdbc_properties =
 admin_jdbc_properties =
   { 'user' => 'postgres', 'password' => node['postgresql']['password']['postgres'] }
 
-sqlshell_pg_user "#{node['fgis']['database']['username']}3" do
+sqlshell_pg_user "#{node['fgis']['database']['username']}" do
   jdbc_url jdbc_url
   jdbc_driver jdbc_driver
   extra_classpath ['http://jdbc.postgresql.org/download/postgresql-9.2-1002.jdbc4.jar']
