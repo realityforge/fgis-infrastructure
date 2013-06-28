@@ -62,7 +62,9 @@ rm -f #{node['tomcat']['base_dir']}/bin/*.bat
 rm -rf mv apache-tomcat
 chown -R #{node['tomcat']['user']} #{node['tomcat']['base_dir']}
 chgrp -R #{node['tomcat']['group']} #{node['tomcat']['base_dir']}
-chmod -R ugo-w #{node['tomcat']['base_dir']}
+chmod -R a+r #{node['tomcat']['base_dir']}/
+chmod a+x #{node['tomcat']['base_dir']}/bin/*.sh
+chmod -R a-w #{node['tomcat']['base_dir']}
 test -d #{node['tomcat']['base_dir']}
 EOF
 end
