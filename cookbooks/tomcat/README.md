@@ -15,12 +15,14 @@ and configure Tomcat instances and deploy resources into the container.
 
 * java
 * archive
+* cutlery
+* authbind (Suggested but not required)
 
 # Attributes
 
 * `node['tomcat']['user']` - The user that owns the Tomcat binaries. Defaults to `tomcat`.
 * `node['tomcat']['group']` - The group allowed to manage Tomcat domains. Defaults to `tomcat-admin`.
-* `node['tomcat']['package_url']` - The url to the Tomcat install package. Defaults to `http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.32/bin/apache-tomcat-7.0.32.tar.gz`.
+* `node['tomcat']['package_url']` - The url to the Tomcat zip install package. Defaults to ``.
 * `node['tomcat']['base_dir']` - The base directory of the Tomcat install. Defaults to `/usr/local/tomcat`.
 * `node['tomcat']['instances_dir']` - The directory containing all the instances. Defaults to `/srv/tomcat`.
 * `node['tomcat']['instances']` - A map of instance definitions used by the attribute_driven recipe. Defaults to `{}`.
@@ -36,10 +38,10 @@ Downloads, and extracts the tomcat binaries, creates the tomcat user and group.
 
 # Resources
 
-* [_instance](#_instance) - Creates a Tomcat instance, creates an OS-level service and starts the service.
-* [_webapp](#_webapp) - Creates a Tomcat instance, creates an OS-level service and starts the service.
+* [tomcat_instance](#tomcat_instance) - Creates a Tomcat instance, creates an OS-level service and starts the service.
+* [tomcat_webapp](#tomcat_webapp) - Creates a Tomcat instance, creates an OS-level service and starts the service.
 
-## _instance
+## tomcat_instance
 
 Creates a Tomcat instance, creates an OS-level service and starts the service.
 
@@ -81,7 +83,7 @@ Creates a Tomcat instance, creates an OS-level service and starts the service.
       }
     end
 
-## _webapp
+## tomcat_webapp
 
 Creates a Tomcat instance, creates an OS-level service and starts the service.
 
