@@ -1,6 +1,10 @@
 ## v0.5.26:
 * Change  : Remove version specifier in cutlery dependency constraint as it
             can trigger a bug in Chef 11's dependency resolver.
+* Bug     : Relax some permissions on directories and files downloaded
+            from remote sources to allow group access as the way Vagrant
+            maps the cache directory means that the user can be modified
+            to vagrant. Suggested by Martin Algesten.
 * Bug     : Support non-string "value" parameters in `attribute_driven_domain`
             for `custom_resource` elements and `web_env_entries` elements.
 * Enhance : Sort elements within the `attribute_driven_domain` recipe in each
