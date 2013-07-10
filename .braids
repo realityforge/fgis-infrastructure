@@ -106,7 +106,7 @@
     "remote": "master/braid/cookbooks/sqlshell",
     "branch": "master",
     "squashed": true,
-    "revision": "05663cfed231cb699d38958f484cd8fea3351ebc"
+    "revision": "a773748a6cbcc23028d80bc23a48d8d1720c45ee"
   },
   "cookbooks/tomcat": {
     "url": "git@github.com:realityforge/chef-tomcat.git",
