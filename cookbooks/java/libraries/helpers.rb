@@ -42,8 +42,10 @@ module Opscode
       case @node['platform_family']
       when 'debian'
         'java-%s-openjdk%s/jre' % [@jdk_version, arch_dir]
-      when 'rhel'
+      when 'rhel', 'fedora'
         'jre-1.%s.0-openjdk%s' % [@jdk_version, arch_dir]
+      when 'smartos'
+        'jre'
       end
     end
 
@@ -55,7 +57,7 @@ module Opscode
       case @node['platform_family']
       when 'debian'
         old_version? ? '' : '-amd64'
-      when 'rhel'
+      when 'rhel', 'fedora'
         '.x86_64'
       else
         '-x86_64'
@@ -88,6 +90,10 @@ class Chef
   class Recipe
     def valid_ibm_jdk_uri?(url)
       url =~ ::URI::ABS_URI && %w[http https].include?(::URI.parse(url).scheme)
+    end
+
+    def platform_requires_license_acceptance?
+      %w(smartos).include?(node.platform)
     end
   end
 end
