@@ -119,11 +119,12 @@ action :add do
     action :create
   end
 
-  last_version = (::File.exist?(current_directory) && node['platform'] != 'windows') ? ::File.readlink(current_directory) : nil
+  last_version = nil
 
-  link current_directory do
-    to new_resource.target_directory
-    unless node['platform'] == 'windows'
+  unless node['platform'] == 'windows'
+    last_version = ::File.exist?(current_directory) ? ::File.readlink(current_directory) : nil
+    link current_directory do
+      to new_resource.target_directory
       owner new_resource.owner
       group new_resource.group
     end
@@ -135,13 +136,13 @@ action :add do
     select { |file| file != new_resource.target_directory }.
     sort { |file| -::File.ctime(file).to_i }
 
-  versions_to_keep = 2
-  files_to_delete = existing_files[0...versions_to_keep]
+  versions_to_keep = 4
+  files_to_delete = existing_files[versions_to_keep...existing_files.length]
 
   files_to_delete.each do |filename|
     directory filename do
       action :delete
       recursive true
     end
-  end
+  end if files_to_delete
 end
