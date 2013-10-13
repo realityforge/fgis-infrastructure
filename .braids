@@ -65,7 +65,7 @@
   "cookbooks/openssl": {
     "branch": "master",
     "remote": "master/braid/cookbooks/openssl",
-    "revision": "ccf81e9b3fec9427ed2e6dd76f252dcf68370379",
+    "revision": "b9a52cdac76063059ff330e8427758cdeff5ee58",
     "squashed": true,
     "type": "git",
     "url": "git://github.com/opscode-cookbooks/openssl.git"
