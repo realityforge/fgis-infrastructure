@@ -1,5 +1,14 @@
 ## 0.2.7:
 
+* Add utility method RealityForge::SearchTools.search_and_deep_merge
+  to merge a search result into a hash and return it.
+* Support a get_attribute helper method on RealityForge::AttributeTools
+* Add support for passing Mash instances into deep_merge and
+  ensure_attribute methods of RealityForge::AttributeTools
+* Add support for setting values into Mash values via
+  `RealityForge::AttributeTools.set_attribute` and deprecate
+  `RealityForge::AttributeTools.set_attribute_on_node`.
+
 ## 0.2.6:
 
 * Extract attribute related helpers into the class
