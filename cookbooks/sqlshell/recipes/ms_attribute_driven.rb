@@ -16,6 +16,23 @@
 
 include_recipe 'sqlshell::default'
 
+def sq_priority(value)
+  value.is_a?(Hash) && value['priority'] ? value['priority'] : 100
+end
+
+def sq_sort(hash)
+  Hash[hash.sort_by {|key, value| "#{"%04d" % sq_priority(value)}#{key}"}]
+end
+
+sq_sort(node['sqlshell']['sql_server']['instances']).each_pair do |instance_key, definition|
+  if definition['recipes'] && definition['recipes']['before']
+    sq_sort(definition['recipes']['before']).each_pair do |recipe, config|
+      Chef::Log.info "Including instance 'before' recipe '#{recipe}' Priority: #{sq_priority(config)}"
+      include_recipe recipe
+    end
+  end
+end
+
 node['sqlshell']['sql_server']['instances'].each_pair do |instance_key, value|
   server_prefix = "sqlshell.sql_server.instances.#{instance_key}"
   jdbc_url = RealityForge::AttributeTools.ensure_attribute(value, 'jdbc.url', String, server_prefix)
@@ -30,8 +47,24 @@ node['sqlshell']['sql_server']['instances'].each_pair do |instance_key, value|
   delete_unmanaged_logins = !value['delete_unmanaged_logins'].is_a?(FalseClass)
   delete_unmanaged_databases = value['delete_unmanaged_databases'].is_a?(TrueClass)
 
+  if value['databases']
+    sq_sort(value['databases']).each_pair do |database_name, database_config|
+      sqlshell_ms_database "#{instance_key}-#{database_name}" do
+        jdbc_url jdbc_url
+        jdbc_driver jdbc_driver
+        extra_classpath extra_classpath
+        jdbc_properties jdbc_properties
+
+        database database_name
+
+        recovery_model database_config['recovery_model'] if database_config['recovery_model']
+        collation database_config['collation'] if database_config['collation']
+      end unless ['master', 'msdb', 'model', 'tempdb'].include?(database_name)
+    end
+  end
+
   if value['logins']
-    value['logins'].each_pair do |login, login_config|
+    sq_sort(value['logins']).each_pair do |login, login_config|
       sqlshell_ms_login "#{instance_key}-#{login}" do
         jdbc_url jdbc_url
         jdbc_driver jdbc_driver
@@ -60,22 +93,10 @@ node['sqlshell']['sql_server']['instances'].each_pair do |instance_key, value|
   end
 
   if value['databases']
-    value['databases'].each_pair do |database_name, database_config|
+    sq_sort(value['databases']).each_pair do |database_name, database_config|
       database_prefix = "#{server_prefix}.databases.#{database_name}"
 
-      is_database_managed = database_config['managed'].nil? ? true : database_config['managed']
-
-      sqlshell_ms_database "#{instance_key}-#{database_name}" do
-        jdbc_url jdbc_url
-        jdbc_driver jdbc_driver
-        extra_classpath extra_classpath
-        jdbc_properties jdbc_properties
-
-        database database_name
-
-        recovery_model database_config['recovery_model'] if database_config['recovery_model']
-        collation database_config['collation'] if database_config['collation']
-      end unless ['master','msdb','model','tempdb'].include?(database_name)
+      is_database_managed = database_config['managed'].nil? ? false : database_config['managed']
 
       if database_config['users']
         database_config['users'].each_pair do |user, user_config|
@@ -106,7 +127,7 @@ node['sqlshell']['sql_server']['instances'].each_pair do |instance_key, value|
           end
 
           if user_config['permissions']
-            user_config['permissions'].each_pair do |permission_key, permission_config|
+            sq_sort(user_config['permissions']).each_pair do |permission_key, permission_config|
               permission_prefix = "#{user_prefix}.permissions.#{permission_key}"
               permission = RealityForge::AttributeTools.ensure_attribute(permission_config, 'permission', String, permission_prefix)
               securable_type = RealityForge::AttributeTools.ensure_attribute(permission_config, 'securable_type', String, permission_prefix)
@@ -179,7 +200,7 @@ node['sqlshell']['sql_server']['instances'].each_pair do |instance_key, value|
             permission_description = "#{user}-#{permission}-#{securable_type}-#{securable || database_name}-#{permission_action}".downcase
 
             if !permissions.include?(permission_description)
-              if is_database_managed && delete_unmanaged_permissions
+              if is_database_managed || delete_unmanaged_permissions
                 Chef::Log.info "Removing historic permission #{permission_action} #{permission} TO #{user} ON #{securable_type}::#{securable || database_name}"
 
                 sqlshell_ms_permission "#{instance_key}-Revoking ... #{permission_action} #{permission} TO #{user} ON #{securable_type}::#{securable || database_name}" do
@@ -231,7 +252,7 @@ node['sqlshell']['sql_server']['instances'].each_pair do |instance_key, value|
             database_role = row['role']
 
             if !role_map[user] || !role_map[user].include?(database_role)
-              if is_database_managed && delete_unmanaged_database_roles
+              if is_database_managed || delete_unmanaged_database_roles
                 Chef::Log.info "Removing historic database role '#{database_role}' from user '#{user}' in database ''#{database_name}''"
 
                 sqlshell_ms_database_role "#{instance_key}-Remove '#{user}' from role '#{database_role}' in '#{database_name}'" do
@@ -272,8 +293,8 @@ node['sqlshell']['sql_server']['instances'].each_pair do |instance_key, value|
           @sql_results.each do |row|
             user = row['user']
 
-            if database_config['users'][user]
-              if is_database_managed && delete_unmanaged_users
+            if !database_config['users'][user]
+              if is_database_managed || delete_unmanaged_users
                 Chef::Log.info "Removing historic user #{user} in #{database_name}"
 
                 sqlshell_ms_user "#{instance_key}-#{database_name}-#{user}" do
@@ -405,7 +426,7 @@ node['sqlshell']['sql_server']['instances'].each_pair do |instance_key, value|
       block do
         @sql_results.each do |row|
           database_name = row['name']
-          if value['databases'][database_name].nil?
+          if value['databases'].nil? || value['databases'][database_name].nil?
             if delete_unmanaged_databases
               Chef::Log.info "Removing historic database #{database_name}"
               sqlshell_ms_database "#{instance_key}-#{database_name}" do
@@ -424,6 +445,15 @@ node['sqlshell']['sql_server']['instances'].each_pair do |instance_key, value|
           end
         end
       end
+    end
+  end
+end
+
+sq_sort(node['sqlshell']['sql_server']['instances']).each_pair do |instance_key, definition|
+  if definition['recipes'] && definition['recipes']['after']
+    sq_sort(definition['recipes']['after']).each_pair do |recipe, config|
+      Chef::Log.info "Including instance 'after' recipe '#{recipe}' Priority: #{sq_priority(config)}"
+      include_recipe recipe
     end
   end
 end
