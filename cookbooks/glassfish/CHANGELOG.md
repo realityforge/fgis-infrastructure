@@ -1,4 +1,13 @@
-## v0.5.26:
+## v0.5.30:
+* Bug     : Fix permission on glassfish home directory so that the
+            .asadmintruststore file can be created.
+* Change  : Set the default stack size to 250 in mq broker LWRP so that
+            the LWRP works without specifying a value under Java 7 x64
+            systems.
+* Enhance : Support init_style on glassfish_mq LWRP. Add initial support
+            for runit.
+
+## v0.5.28:
 * Change  : Remove version specifier in cutlery dependency constraint as it
             can trigger a bug in Chef 11's dependency resolver.
 * Bug     : Relax some permissions on directories and files downloaded
