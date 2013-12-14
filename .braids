@@ -96,7 +96,7 @@
   "cookbooks/psql": {
     "branch": "master",
     "remote": "master/braid/cookbooks/psql",
-    "revision": "eaa6c3359434f49c85caa433e0a4cddc07773432",
+    "revision": "f0ba9b637b480fe7a8845a6e19ffbea043063d0e",
     "squashed": true,
     "type": "git",
     "url": "git://github.com/realityforge/chef-psql.git"
