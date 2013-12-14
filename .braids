@@ -2,7 +2,7 @@
   "cookbooks/apt": {
     "branch": "master",
     "remote": "master/braid/cookbooks/apt",
-    "revision": "3f51f1fd20130259aae4f75d9865f3a61e389202",
+    "revision": "27a63b72ada97ff716901ee7d6a86315767672e0",
     "squashed": true,
     "type": "git",
     "url": "git://github.com/opscode-cookbooks/apt.git"
