@@ -74,6 +74,9 @@ the .tar.gz.
 * `node['java']['windows']['package_name']` - The package name used by
   windows_package to check in the registry to determine if the install
   has already been run
+* `node['java']['windows']['checksum']` - The checksum for the package to
+  download on Windows machines (default is nil, which does not perform
+  checksum validation)
 * `node['java']['ibm']['url']` - The URL which to download the IBM
   JDK/SDK. See the `ibm` recipe section below.
 * `node['java']['ibm']['accept_ibm_download_terms']` - Indicates that
@@ -128,6 +131,13 @@ it as the default. This can be useful if you have applications on the
 same machine that require different versions of the JVM.
 
 This recipe operates in a similar manner to `java::oracle`.
+
+## oracle_rpm
+
+This recipe installs the Oracle JRE or JDK provided by a custom YUM
+repositories.
+It also uses the `alternatives` system on RHEL families to set
+the default Java.
 
 ## windows
 

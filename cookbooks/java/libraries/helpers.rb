@@ -46,6 +46,8 @@ module Opscode
         'jre-1.%s.0-openjdk%s' % [@jdk_version, arch_dir]
       when 'smartos'
         'jre'
+      else
+        'jre'
       end
     end
 
@@ -89,7 +91,7 @@ end
 class Chef
   class Recipe
     def valid_ibm_jdk_uri?(url)
-      url =~ ::URI::ABS_URI && %w[http https].include?(::URI.parse(url).scheme)
+      url =~ ::URI::ABS_URI && %w[file http https].include?(::URI.parse(url).scheme)
     end
 
     def platform_requires_license_acceptance?
