@@ -20,19 +20,25 @@ and configure Tomcat instances and deploy resources into the container.
 
 # Attributes
 
-* `node['tomcat']['user']` - The user that owns the Tomcat binaries. Defaults to `tomcat`.
-* `node['tomcat']['group']` - The group allowed to manage Tomcat domains. Defaults to `tomcat-admin`.
-* `node['tomcat']['package_url']` - The url to the Tomcat zip install package. Defaults to ``.
-* `node['tomcat']['base_dir']` - The base directory of the Tomcat install. Defaults to `/usr/local/tomcat`.
-* `node['tomcat']['instances_dir']` - The directory containing all the instances. Defaults to `/srv/tomcat`.
-* `node['tomcat']['instances']` - A map of instance definitions used by the attribute_driven recipe. Defaults to `{}`.
+* `node['tomcat']['user']` - Tomcat User: The user that owns the Tomcat binaries. Defaults to `tomcat`.
+* `node['tomcat']['group']` - Tomcat Admin Group: The group allowed to manage Tomcat domains. Defaults to `tomcat-admin`.
+* `node['tomcat']['package_url']` - URL for Package: The url to the Tomcat zip install package. Defaults to `nil`.
+* `node['tomcat']['base_dir']` - Tomcat Base Directory: The base directory of the Tomcat install. Defaults to `/usr/local/tomcat`.
+* `node['tomcat']['instances_dir']` - Tomcat Instance Directory: The directory containing all the instances. Defaults to `/srv/tomcat`.
+* `node['tomcat']['instances']` - Tomcat Instance Definitions: A map of instance definitions used by the attribute_driven recipe. Defaults to `Mash.new`.
 
 # Recipes
 
+* [tomcat::attribute_driven](#tomcatattribute_driven) - Configures 0 or more Tomcat instances using the tomcat/instances attribute.
 * [tomcat::default](#tomcatdefault) - Installs Tomcat binaries.
-* tomcat::attribute_driven - Configures 0 or more Tomcat instances using the tomcat/instances attribute.
+
+## tomcat::attribute_driven
+
+Configures 0 or more Tomcat instances using the tomcat/instances attribute.
 
 ## tomcat::default
+
+Installs Tomcat binaries.
 
 Downloads, and extracts the tomcat binaries, creates the tomcat user and group.
 

@@ -16,6 +16,8 @@
 
 =begin
 #<
+Installs Tomcat binaries.
+
 Downloads, and extracts the tomcat binaries, creates the tomcat user and group.
 #>
 =end

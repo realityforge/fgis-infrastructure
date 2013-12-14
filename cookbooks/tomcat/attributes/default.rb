@@ -14,11 +14,17 @@
 # limitations under the License.
 #
 
+#<> Tomcat User: The user that owns the Tomcat binaries.
 default['tomcat']['user'] = 'tomcat'
+#<> Tomcat Admin Group: The group allowed to manage Tomcat domains.
 default['tomcat']['group'] = 'tomcat-admin'
 
+#<> URL for Package: The url to the Tomcat zip install package
 default['tomcat']['package_url'] = nil
 
+#<> Tomcat Base Directory: The base directory of the Tomcat install.
 default['tomcat']['base_dir'] = '/usr/local/tomcat'
+#<> Tomcat Instance Directory: The directory containing all the instances.
 default['tomcat']['instances_dir'] = '/srv/tomcat'
+#<> Tomcat Instance Definitions: A map of instance definitions used by the attribute_driven recipe.
 default['tomcat']['instances'] = Mash.new

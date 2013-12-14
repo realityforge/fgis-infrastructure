@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+#<> Configures 0 or more Tomcat instances using the tomcat/instances attribute.
+
 include_recipe 'tomcat::default'
 
 node['tomcat']['instances'].each_pair do |domain_key, definition|
