@@ -80,7 +80,7 @@
   "cookbooks/postgresql": {
     "branch": "master",
     "remote": "master/braid/cookbooks/postgresql",
-    "revision": "5800238828b443725442fe510ec4f5308ed9ce8b",
+    "revision": "9dc4c6042bbd861ee8d5e2428397558fee06947e",
     "squashed": true,
     "url": "git://github.com/opscode-cookbooks/postgresql.git"
   },
