@@ -44,7 +44,7 @@
   "cookbooks/java": {
     "branch": "master",
     "remote": "master/braid/cookbooks/java",
-    "revision": "ac899afcc6bb1b92e6100b8c059a29ba6198d1ca",
+    "revision": "78890213b3a0747c73d3016ca3f9724d0aaefd57",
     "squashed": true,
     "url": "https://github.com/opscode-cookbooks/java.git"
   },
