@@ -1,4 +1,4 @@
-/.vagrant
+/.vagrant.*
 # Ignore any keys in the chef directory
 /.chef/*.pem
 /.chef/*.pub
