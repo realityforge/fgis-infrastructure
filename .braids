@@ -25,7 +25,7 @@
     "remote": "master/braid/cookbooks/build-essential",
     "branch": "master",
     "squashed": true,
-    "revision": "7f4d351036f10e7b641e1df137390491d6111669"
+    "revision": "400968913bfa8a4a5c9783b383c3b63899f2fe72"
   },
   "cookbooks/cutlery": {
     "branch": "master",
