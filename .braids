@@ -2,9 +2,8 @@
   "cookbooks/apt": {
     "branch": "master",
     "remote": "master/braid/cookbooks/apt",
-    "revision": "27a63b72ada97ff716901ee7d6a86315767672e0",
+    "revision": "ac1917c66a9d67fb4a0afeffaa92195b7385887e",
     "squashed": true,
-    "type": "git",
     "url": "git://github.com/opscode-cookbooks/apt.git"
   },
   "cookbooks/archive": {
@@ -19,7 +18,6 @@
     "remote": "master/braid/cookbooks/authbind",
     "revision": "fb7506ae69b1d4c5e4b3e176033ee410b0cfbd7e",
     "squashed": true,
-    "type": "git",
     "url": "git://github.com/realityforge/chef-authbind.git"
   },
   "cookbooks/build-essential": {
@@ -34,7 +32,6 @@
     "remote": "master/braid/cookbooks/cutlery",
     "revision": "984c3f7b406d671cb254fab9b9ffb7744267af22",
     "squashed": true,
-    "type": "git",
     "url": "git://github.com/realityforge/chef-cutlery.git"
   },
   "cookbooks/glassfish": {
@@ -42,7 +39,6 @@
     "remote": "master/braid/cookbooks/glassfish",
     "revision": "176b1b661c2a93c32ba452dcbb82ec3ef684185a",
     "squashed": true,
-    "type": "git",
     "url": "git://github.com/realityforge/chef-glassfish.git"
   },
   "cookbooks/java": {
@@ -50,7 +46,6 @@
     "remote": "master/braid/cookbooks/java",
     "revision": "ac899afcc6bb1b92e6100b8c059a29ba6198d1ca",
     "squashed": true,
-    "type": "git",
     "url": "https://github.com/opscode-cookbooks/java.git"
   },
   "cookbooks/locale": {
@@ -59,7 +54,6 @@
     "remote": "master/braid/cookbooks/locale",
     "revision": "ae51743fe82510b5e9750d9e8eda4782c9d97ef0",
     "squashed": true,
-    "type": "git",
     "url": "git://github.com/hw-cookbooks/locale.git"
   },
   "cookbooks/openssl": {
@@ -67,7 +61,6 @@
     "remote": "master/braid/cookbooks/openssl",
     "revision": "b9a52cdac76063059ff330e8427758cdeff5ee58",
     "squashed": true,
-    "type": "git",
     "url": "git://github.com/opscode-cookbooks/openssl.git"
   },
   "cookbooks/partial_search": {
@@ -82,7 +75,6 @@
     "remote": "master/braid/cookbooks/postgis",
     "revision": "6c62b961bb38418b820664cae0e6e7aaacd9850c",
     "squashed": true,
-    "type": "git",
     "url": "git://github.com/realityforge/chef-postgis.git"
   },
   "cookbooks/postgresql": {
@@ -90,7 +82,6 @@
     "remote": "master/braid/cookbooks/postgresql",
     "revision": "5800238828b443725442fe510ec4f5308ed9ce8b",
     "squashed": true,
-    "type": "git",
     "url": "git://github.com/opscode-cookbooks/postgresql.git"
   },
   "cookbooks/psql": {
@@ -98,7 +89,6 @@
     "remote": "master/braid/cookbooks/psql",
     "revision": "f0ba9b637b480fe7a8845a6e19ffbea043063d0e",
     "squashed": true,
-    "type": "git",
     "url": "git://github.com/realityforge/chef-psql.git"
   },
   "cookbooks/sqlshell": {
