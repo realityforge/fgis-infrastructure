@@ -43,9 +43,9 @@ Enable or disable authbind for a particular port on a particular interface.
 
 ### Attribute Parameters
 
-- addr: 
-- port: 
-- user: 
+- addr:
+- port:
+- user:
 - group:  Defaults to <code>nil</code>.
 
 ### Examples
@@ -69,8 +69,8 @@ Enable or disable authbind for a particular port.
 
 ### Attribute Parameters
 
-- port: 
-- user: 
+- port:
+- user:
 - group:  Defaults to <code>nil</code>.
 
 ### Examples

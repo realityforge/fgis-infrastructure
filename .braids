@@ -16,7 +16,7 @@
   "cookbooks/authbind": {
     "branch": "master",
     "remote": "master/braid/cookbooks/authbind",
-    "revision": "fb7506ae69b1d4c5e4b3e176033ee410b0cfbd7e",
+    "revision": "1e586bd928e10effc3002f08250795c500db1286",
     "squashed": true,
     "url": "git://github.com/realityforge/chef-authbind.git"
   },
