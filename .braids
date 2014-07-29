@@ -30,7 +30,7 @@
   "cookbooks/cutlery": {
     "branch": "master",
     "remote": "master/braid/cookbooks/cutlery",
-    "revision": "984c3f7b406d671cb254fab9b9ffb7744267af22",
+    "revision": "89c5110c0366e4b819160da9328627fe2f896d50",
     "squashed": true,
     "url": "git://github.com/realityforge/chef-cutlery.git"
   },
