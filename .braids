@@ -68,7 +68,7 @@
     "remote": "master/braid/cookbooks/partial_search",
     "branch": "master",
     "squashed": true,
-    "revision": "85012a4c065e4fae5683b2d2998dea61f0d527c4"
+    "revision": "3f4e8673f21057344c5840e0f3ca6ff0a3ce4dd0"
   },
   "cookbooks/postgis": {
     "branch": "master",

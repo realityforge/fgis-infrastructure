@@ -1,8 +1,9 @@
 Partial Search Cookbook
 =======================
-Partial Search is a new search API currently available only on Opscode
-Hosted Chef that can be used to reduce the network bandwidth and the
-memory used by chef-client to process search results.
+[Partial Search](http://docs.opscode.com/essentials_search.html#partial-search)
+is a search API available on Chef Server. (see Notes below for version compatibility)  
+It can be used to reduce the network bandwidth and the memory used by
+chef-client to process search results.
 
 This cookbook provides an experimental interface to the partial search
 API by providing a `partial_search` method that can be used instead of
@@ -51,11 +52,9 @@ Notes
   provided by this cookbook. Please send comments to the chef-dev
   mailing list.
 
-* The partial search API will eventually be available in the Open Source Chef
-  Server.
+* The partial search API is available in the Open Source Chef Server since 11.0.4
 
-* The partial search API is available in Opscode Private Chef since
-  1.2.2
+* The partial search API is available in Enterprise Chef Server since 1.2.2
 
 
 License & Authors
