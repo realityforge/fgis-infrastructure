@@ -10,4 +10,4 @@ recipe 'openssl', 'Empty, this cookbook provides a library, see README.md'
 
 # chef-sugar greatly reduces the amount of code required to check
 # conditionals for the attributes used in the upgrader recipe.
-depends 'chef-sugar'
+#depends 'chef-sugar'
