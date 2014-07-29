@@ -19,6 +19,125 @@
 Configures 0 or more GlassFish domains using the glassfish/domains attribute.
 
 The `attribute_driven_domain` recipe interprets attributes on the node and defines the resources described in the attributes.
+
+A typical approach is to define the configuration for the entire application on the node and include the recipe.
+Another approach using a vagrant file is to set the json attribute such as;
+
+```ruby
+  chef.json = {
+        "java" => {
+            "install_flavor" => "oracle",
+            "jdk_version" => 7,
+            "oracle" => {
+                "accept_oracle_download_terms" => true
+            }
+        },
+        "glassfish" => {
+            "version" => "4.0.1",
+            "package_url" => "http://dlc.sun.com.edgesuite.net/glassfish/4.0.1/promoted/glassfish-4.0.1-b01.zip",
+            "base_dir" => "/usr/local/glassfish",
+            "domains_dir" => "/usr/local/glassfish/glassfish/domains",
+            "domains" => {
+                "myapp" => {
+                    "config" => {
+                        "min_memory" => 1024,
+                        "max_memory" => 1024,
+                        "max_perm_size" => 256,
+                        "port" => 7070,
+                        "admin_port" => 4848,
+                        "username" => "adminuser",
+                        "password" => "adminpw",
+                        "remote_access" => false,
+                        "secure" => false
+                    },
+                    'extra_libraries' => {
+                        'realm' => {
+                          'type' => 'common',
+                          'url' => 'https://s3.amazonaws.com/somebucket/lib/realm.jar',
+                          'requires_restart' => true
+                        },
+                        'jdbcdriver' => {
+                          'type' => 'common',
+                          'url' => 'https://s3.amazonaws.com/somebucket/lib/mysql-connector-java-5.1.25-bin.jar'
+                        },
+                        'encryption' => {
+                          'type' => 'common',
+                          'url' => 'https://s3.amazonaws.com/somebucket/lib/jasypt-1.9.0.jar'
+                        }
+                    },
+                    'jdbc_connection_pools' => {
+                        'RealmPool' => {
+                            'config' => {
+                                'datasourceclassname' => 'com.mysql.jdbc.jdbc2.optional.MysqlDataSource',
+                                'restype' => 'javax.sql.DataSource',
+                                'isconnectvalidatereq' => 'true',
+                                'validationmethod' => 'auto-commit',
+                                'ping' => 'true',
+                                'description' => 'Realm Pool',
+                                'properties' => {
+                                   'Instance' => "jdbc:mysql://devdb.somecompany.com:3306/realmdb",
+                                   'ServerName' => "devdb.somecompany.com",
+                                   'User' => 'realmuser',
+                                   'Password' => 'realmpw',
+                                   'PortNumber' => '3306',
+                                   'DatabaseName' => 'realmdb'
+                                }
+                            },
+                            'resources' => {
+                                'jdbc/Realm' => {
+                                    'description' => 'Resource for Realm Pool',
+                                }
+                            }
+                        },
+                        'AppPool' => {
+                            'config' => {
+                                'datasourceclassname' => 'com.mysql.jdbc.jdbc2.optional.MysqlDataSource',
+                                'restype' => 'javax.sql.DataSource',
+                                'isconnectvalidatereq' => 'true',
+                                'validationmethod' => 'auto-commit',
+                                'ping' => 'true',
+                                'description' => 'App Pool',
+                                'properties' => {
+                                  'Instance' => "jdbc:mysql://devdb.somecompany.com:3306/appdb",
+                                  'ServerName' => "devdb.somecompany.com",
+                                  'User' => 'appuser',
+                                  'Password' => 'apppw',
+                                  'PortNumber' => '3306',
+                                  'DatabaseName' => 'appdb'
+                                }
+                            },
+                            'resources' => {
+                                'jdbc/App' => {
+                                    'description' => 'Resource for App Pool',
+                                }
+                            }
+                        }
+                    },
+                    'realms' => {
+                        'custom-realm' => {
+                            'classname' => 'com.somecompany.realm.CustomRealm',
+                            'jaas-context' => 'customRealm',
+                            'properties' => {
+                                'jaas-context' => 'customRealm',
+                                'datasource' => 'jdbc/Realm',
+                                'groupQuery' => 'SELECT ...',
+                                'passwordQuery' => 'SELECT ...'
+                            }
+                         }
+                    },
+                    'realm_types' => {
+                        'customRealm' => 'com.somecompany.realm.CustomLoginModule'
+                    },
+                    'deployables' => {
+                        'myapp' => {
+                            'url' => 'https://s3.amazonaws.com/somebucket/apps/app.war',
+                            'context_root' => '/'
+                         }
+                    }
+                }
+            }
+        }
+```
 #>
 =end
 
@@ -31,13 +150,18 @@ def gf_scan_existing_resources(admin_port, username, password_file, secure, comm
   options[:secure] = secure if secure
   options[:admin_port] = admin_port if admin_port
 
+  Chef::Log.debug "Issuing #{Asadmin.asadmin_command(node, command, options)}"
   output = `#{Asadmin.asadmin_command(node, command, options)} 2> /dev/null`
   return if output =~ /^Nothing to list.*/ || output =~ /^No such local command.*/ || output =~ /^Command .* failed\./
   lines = output.split("\n")
 
   lines.each do |line|
-    existing = line.scan(/^(\S+)/).flatten[0]
-    yield existing
+    if line =~ /CLI[0-9]+: Warning.*/
+      Chef::Log.warn "Ignoring asadmin output: #{line}"
+    else
+      existing = line.scan(/^(\S+)/).flatten[0]
+      yield existing
+    end
   end
 end
 
@@ -74,6 +198,12 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     include_recipe 'authbind'
   end
 
+  if 'runit' == definition['config']['init_style']
+    include_recipe 'runit::default'
+  end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - domain"
+
   glassfish_domain domain_key do
     min_memory definition['config']['min_memory'] if definition['config']['min_memory']
     max_memory definition['config']['max_memory'] if definition['config']['max_memory']
@@ -89,15 +219,73 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     realm_types definition['realm_types'] if definition['realm_types']
     extra_jvm_options definition['config']['jvm_options'] if definition['config']['jvm_options']
     env_variables definition['config']['environment'] if definition['config']['environment']
+    java_agents definition['config']['java_agents'] if definition['config']['java_agents']
+    init_style definition['config']['init_style'] if definition['config']['init_style']
     system_user system_username if system_username
     system_group system_group if system_group
   end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - secure_admin"
+
+  # TODO: Merge glassfish_secure_admin into glassfish_domain?
+  glassfish_secure_admin "#{domain_key}: secure_admin" do
+    domain_name domain_key
+    admin_port admin_port if admin_port
+    username username if username
+    password_file password_file if password_file
+    secure secure if secure
+    system_user system_username if system_username
+    system_group system_group if system_group
+    init_style definition['config']['init_style'] if definition['config']['init_style']
+    action ('true' == definition['config']['remote_access'].to_s) ? :enable : :disable
+  end
+
+  if admin_port
+    require 'net/https'
+
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - wait till up"
+
+    ruby_block "block_until_glassfish_#{domain_key}_up" do
+      block do
+        count = 0
+        loop do
+          raise "GlassFish failed to become operational" if count > 50
+          count = count + 1
+          admin_url = "https://#{node['ipaddress']}:#{admin_port}/management/domain/nodes"
+          begin
+            uri = URI(admin_url)
+            res = nil
+            http = Net::HTTP.new(uri.hostname, uri.port)
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+            http.start do |http|
+              request = Net::HTTP::Get.new(uri.request_uri)
+              request.basic_auth username, definition['config']['password']
+              request['Accept'] = "application/json"
+              res = http.request(request)
+            end
+            break if res.kind_of?(Net::HTTPOK)
+            puts "GlassFish not responding OK - #{res}"
+          rescue Exception => e
+            puts "GlassFish error while accessing web interface at #{admin_url}"
+            puts e.message
+            puts e.backtrace.join("\n")
+          end
+          sleep 1
+        end
+      end
+      action :create
+    end
+  end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - extra_libs"
 
   if definition['extra_libraries']
     gf_sort(definition['extra_libraries']).values.each do |config|
       config = config.is_a?(Hash) ? config : {'url' => config}
       url = config['url']
       library_type = config['type'] || 'ext'
+      requires_restart = config['requires_restart'] || false
       glassfish_library url do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -107,20 +295,13 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
         system_user system_username if system_username
         system_group system_group if system_group
         library_type library_type
+        requires_restart requires_restart
+        init_style definition['config']['init_style'] if definition['config']['init_style']
       end
     end
   end
 
-  glassfish_secure_admin "#{domain_key}: secure_admin" do
-    domain_name domain_key
-    admin_port admin_port if admin_port
-    username username if username
-    password_file password_file if password_file
-    secure secure if secure
-    system_user system_username if system_username
-    system_group system_group if system_group
-    action ('true' == definition['config']['remote_access'].to_s) ? :enable : :disable
-  end
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - properties"
 
   if definition['properties']
     gf_sort(definition['properties']).each_pair do |key, value|
@@ -142,6 +323,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
   ## Deploy all OSGi bundles prior to attempting to setup resources as they are likely to be the things
   ## that are provided by OSGi
   ##
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - deployables"
   if definition['deployables']
     gf_sort(definition['deployables']).each_pair do |component_name, configuration|
       if configuration['type'] && configuration['type'].to_s == 'osgi'
@@ -173,6 +355,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - realms"
   if definition['realms']
     gf_sort(definition['realms']).each_pair do |key, configuration|
       glassfish_auth_realm key.to_s do
@@ -192,10 +375,12 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - jdbc_connection_pools"
+
   if definition['jdbc_connection_pools']
     gf_sort(definition['jdbc_connection_pools']).each_pair do |key, configuration|
-      key = key.to_s
-      glassfish_jdbc_connection_pool key do
+      pool_name = key.to_s
+      glassfish_jdbc_connection_pool pool_name do
         domain_name domain_key
         admin_port admin_port if admin_port
         username username if username
@@ -209,6 +394,8 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
       end
       if configuration['resources']
         gf_sort(configuration['resources']).each_pair do |resource_name, resource_configuration|
+        Chef::Log.info "Defining GlassFish JDBC Resource #{resource_name}, config: #{resource_configuration}"
+
           glassfish_jdbc_resource resource_name.to_s do
             domain_name domain_key
             admin_port admin_port if admin_port
@@ -217,7 +404,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
             secure secure if secure
             system_user system_username if system_username
             system_group system_group if system_group
-            connectionpoolid key
+            connectionpoolid pool_name
             resource_configuration.each_pair do |config_key, value|
               self.send(config_key, value) unless config_key == 'priority'
             end
@@ -227,6 +414,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - resource_adapters"
   if definition['resource_adapters']
     gf_sort(definition['resource_adapters']).each_pair do |resource_adapter_key, resource_configuration|
       resource_adapter_key = resource_adapter_key.to_s
@@ -298,9 +486,33 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - jms_resources"
+  if definition['jms_resources']
+    gf_sort(definition['jms_resources']).each_pair do |key, value|
+      hash = value.is_a?(Hash) ? value : {'value' => value}
+      hash['restype'] = 'javax.jms.Queue' if hash['restype'].nil? && (hash['value'].is_a?(TrueClass) || hash['value'].is_a?(FalseClass))
+      glassfish_jms_resource key.to_s do
+        domain_name domain_key
+        admin_port admin_port if admin_port
+        username username if username
+        password_file password_file if password_file
+        secure secure if secure
+        system_user system_username if system_username
+        system_group system_group if system_group
+        target hash['target'] if hash['target']
+        enabled hash['enabled'] if hash['enabled']
+        description hash['description'] if hash['description']
+        properties hash['properties'] if hash['properties']
+        restype hash['restype'] if hash['restype']
+      end
+    end
+  end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - custom_resources"
   if definition['custom_resources']
     gf_sort(definition['custom_resources']).each_pair do |key, value|
       hash = value.is_a?(Hash) ? value : {'value' => value}
+      hash['restype'] = 'java.lang.Boolean' if hash['restype'].nil? && (hash['value'].is_a?(TrueClass) || hash['value'].is_a?(FalseClass))
       glassfish_custom_resource key.to_s do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -315,11 +527,12 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
         properties hash['properties'] if hash['properties']
         restype hash['restype'] if hash['restype']
         factoryclass hash['factoryclass'] if hash['factoryclass']
-        value hash['value'].to_s if hash['value']
+        value hash['value'].to_s unless hash['value'].nil?
       end
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - javamail_resources"
   if definition['javamail_resources']
     gf_sort(definition['javamail_resources']).each_pair do |key, javamail_configuration|
       glassfish_javamail_resource key.to_s do
@@ -337,6 +550,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - deployables"
   if definition['deployables']
     gf_sort(definition['deployables']).each_pair do |component_name, configuration|
       if configuration['type'].nil? || configuration['type'].to_s != 'osgi'
@@ -383,7 +597,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
               webapp component_name
               name key
               type hash['type'] if hash['type']
-              value hash['value'].to_s if hash['value']
+              value hash['value'].to_s unless hash['value'].nil?
               description hash['description'] if hash['description']
             end
           end
@@ -397,11 +611,13 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - scanning existing applications"
   gf_scan_existing_resources(admin_port,
                              username,
                              password_file,
                              secure,
                              'list-applications') do |versioned_component_name|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - scanning existing application #{versioned_component_name}"
     name_parts = versioned_component_name.split(':')
     key = name_parts[0]
     version_parts = name_parts.size > 1 ? name_parts[1].split('+') : ['']
@@ -436,6 +652,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
 
     unless keep
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - undeploying existing resource #{versioned_component_name}"
       glassfish_deployable versioned_component_name do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -449,15 +666,19 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking web-env entry for existing resources"
+
   if definition['deployables']
     gf_sort(definition['deployables']).each_pair do |component_name, configuration|
       next if configuration['type'] && configuration['type'].to_s == 'osgi'
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking web-env entry for #{component_name}"
       gf_scan_existing_resources(admin_port,
                                  username,
                                  password_file,
                                  secure,
                                  "list-web-env-entry #{component_name}") do |existing|
         unless configuration['web_env_entries'] && configuration['web_env_entries'][existing]
+          Chef::Log.info "Defining GlassFish Domain #{domain_key} - unsetting #{existing} web-env entry for #{component_name}"
           glassfish_web_env_entry "#{domain_key}: #{component_name} unset #{existing}" do
             domain_name domain_key
             admin_port admin_port if admin_port
@@ -475,12 +696,15 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking resource adapter configs for existing resources"
   gf_scan_existing_resources(admin_port,
                              username,
                              password_file,
                              secure,
                              'list-resource-adapter-configs') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking resource adapter config for #{existing}"
     unless definition['resource_adapters'] && definition['resource_adapters'][existing]
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing resource adapter config for #{existing}"
       glassfish_resource_adapter existing do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -494,11 +718,13 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing connector pools"
   gf_scan_existing_resources(admin_port,
                              username,
                              password_file,
                              secure,
                              'list-connector-connection-pools') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing connector pool #{existing}"
     found = false
     if definition['resource_adapters']
       gf_sort(definition['resource_adapters']).each_pair do |key, configuration|
@@ -508,6 +734,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
       end
     end
     unless found
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing connector pool #{existing}"
       glassfish_connector_connection_pool existing do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -521,7 +748,9 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing resource connectors"
   gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-connector-resources') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing resource connector #{existing}"
     found = false
     if definition['resource_adapters']
       gf_sort(definition['resource_adapters']).each_pair do |key, configuration|
@@ -535,6 +764,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
       end
     end
     unless found
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing resource connector #{existing}"
       glassfish_connector_resource existing do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -548,7 +778,9 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing admin objects"
   gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-admin-objects') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing admin object #{existing}"
     found = false
     if definition['resource_adapters']
       gf_sort(definition['resource_adapters']).each_pair do |key, configuration|
@@ -558,6 +790,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
       end
     end
     unless found
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing admin object #{existing}"
       glassfish_admin_object existing do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -571,11 +804,15 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing jdbc pools"
   gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-jdbc-connection-pools') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing jdbc pool #{existing}"
     standard_pools = %w{__TimerPool}
     unless definition['jdbc_connection_pools'] &&
            definition['jdbc_connection_pools'][existing] ||
            standard_pools.include?(existing)
+
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing jdbc pool #{existing}"
 
       glassfish_jdbc_connection_pool existing do
         domain_name domain_key
@@ -590,7 +827,9 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing jdbc resources"
   gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-jdbc-resources') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing jdbc resource #{existing}"
     found = false
     if definition['jdbc_connection_pools']
       gf_sort(definition['jdbc_connection_pools']).each_pair do |key, configuration|
@@ -601,6 +840,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
     standard_resources = %w{jdbc/__TimerPool}
     unless found || standard_resources.include?(existing)
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing jdbc resource #{existing}"
       glassfish_jdbc_connection_pool existing do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -614,8 +854,11 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing mail resources"
   gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-javamail-resources') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing mail resource #{existing}"
     unless definition['javamail_resources'] && definition['javamail_resources'][existing]
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing mail resource #{existing}"
       glassfish_javamail_resource existing do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -629,8 +872,29 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing jms resources"
+  gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-jms-resources') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing jms resource #{existing}"
+    unless definition['jms_resources'] && definition['jms_resources'][existing]
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing jms resource #{existing}"
+      glassfish_jms_resource existing do
+        domain_name domain_key
+        admin_port admin_port if admin_port
+        username username if username
+        password_file password_file if password_file
+        secure secure if secure
+        system_user system_username if system_username
+        system_group system_group if system_group
+        action :delete
+      end
+    end
+  end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing custom resources"
   gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-custom-resources') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing custom resource #{existing}"
     unless definition['custom_resources'] && definition['custom_resources'][existing]
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing custom resource #{existing}"
       glassfish_custom_resource existing do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -644,8 +908,11 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing resource adapters"
   gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-resource-adapter-configs') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing resource adapters #{existing}"
     unless definition['resource_adapters'] && definition['resource_adapters'][existing]
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing resource adapters #{existing}"
       glassfish_resource_adapter existing do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -659,9 +926,12 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing auth realms"
   gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-auth-realms') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing auth realms #{existing}"
     standard_realms = %w{admin-realm file certificate}
     unless definition['realms'] && definition['realms'][existing] || standard_realms.include?(existing)
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing auth realms #{existing}"
       glassfish_auth_realm existing do
         domain_name domain_key
         admin_port admin_port if admin_port
@@ -674,6 +944,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
       end
     end
   end
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - complete"
 end
 
 gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|

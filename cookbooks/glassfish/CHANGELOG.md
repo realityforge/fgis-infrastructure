@@ -1,4 +1,22 @@
 ## v0.5.30:
+* Enhance : Initial support for RHEL by using a custom upstart script.
+            Submitted By Jim Dowling.
+* Enhance : Support using 'root' as the system user. Submitted By Mike Thomas.
+* Enhance : Improve mechanism for accessing version to be portable to older
+            versions of ruby. Submitted By Mike Thomas.
+* Enhance : Improve documentation for the attribtue driven recipe. Submitted
+            by Mike Thomas.
+* Enhance : Support `requires_restart` parameter on the glassfish_library
+            LWRP. Submitted by Mike Thomas.
+* Change  : Set the unask to 0022 to allow logstash and other applications
+            access to the generated logs. Submitted by Gert Leenders.
+* Enhance : Rework the glassfish_secure_admin functionality to be more
+            resilient regardless of the init_style and version of
+            glassfish in use.
+* Enhance : Support runit as an init style.
+* Enhance : Work around some warnings issued by GlassFish 4 install.
+* Enhance : Initial support for GlassFish 4.
+* Enhance : Add significantly more logging to help debugging issues.
 * Bug     : Fix permission on glassfish home directory so that the
             .asadmintruststore file can be created.
 * Change  : Set the default stack size to 250 in mq broker LWRP so that

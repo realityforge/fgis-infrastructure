@@ -172,12 +172,15 @@ end
 use_inline_resources
 
 action :create do
+  service_name = "glassfish-#{new_resource.domain_name}"
+  service_resource_name = new_resource.init_style == 'upstart' ? "service[#{service_name}]" : "runit_service[#{service_name}]"
+
   if new_resource.system_group != node['glassfish']['group']
     group new_resource.system_group do
     end
   end
 
-  if new_resource.system_user != node['glassfish']['user']
+  if new_resource.system_user != node['glassfish']['user'] and new_resource.system_user != "root"
     user new_resource.system_user do
       comment "GlassFish #{new_resource.domain_name} Domain"
       gid new_resource.system_group
@@ -189,13 +192,14 @@ action :create do
 
   requires_authbind = new_resource.port < 1024 || new_resource.admin_port < 1024
 
-  service "glassfish-#{new_resource.domain_name}" do
+  service service_name do
     provider Chef::Provider::Service::Upstart
     supports :start => true, :restart => true, :stop => true, :status => true
     action :nothing
   end
 
   args = default_jvm_options.dup
+  args += new_resource.java_agents.map{ |agent| "-javaagent:#{agent}"}
   args += new_resource.extra_jvm_options
   args << "-cp"
   args << "#{node['glassfish']['base_dir']}/glassfish/modules/glassfish.jar"
@@ -214,15 +218,6 @@ action :create do
   args << "DAS"
   args << "-domaindir"
   args << domain_dir_path
-
-  template "/etc/init/glassfish-#{new_resource.domain_name}.conf" do
-    source "glassfish-upstart.conf.erb"
-    mode "0644"
-    cookbook 'glassfish'
-
-    variables(:resource => new_resource, :args => args, :authbind => requires_authbind, :listen_ports => [new_resource.admin_port, new_resource.port])
-    notifies :restart, "service[glassfish-#{new_resource.domain_name}]", :delayed
-  end
 
   directory node['glassfish']['domains_dir'] do
     owner node['glassfish']['user']
@@ -258,14 +253,15 @@ action :create do
   bash "create domain #{new_resource.domain_name}" do
     not_if "#{asadmin_command('list-domains')} #{domain_dir_arg}| grep -- '#{new_resource.domain_name} '"
 
-    args = []
-    args << "--checkports=false"
-    args << "--instanceport #{new_resource.port}"
-    args << "--adminport #{new_resource.admin_port}"
-    args << "--nopassword=false" if new_resource.username
-    args << domain_dir_arg
+    create_args = []
+    create_args << "--checkports=false"
+    create_args << "--savemasterpassword=true" if node['glassfish']['version'][0..0] == '4'
+    create_args << "--instanceport #{new_resource.port}"
+    create_args << "--adminport #{new_resource.admin_port}"
+    create_args << "--nopassword=false" if new_resource.username
+    create_args << domain_dir_arg
     command_string = []
-    command_string << (requires_authbind ? "authbind --deep " : "") + asadmin_command("create-domain #{args.join(' ')} #{new_resource.domain_name}", false)
+    command_string << (requires_authbind ? "authbind --deep " : "") + asadmin_command("create-domain #{create_args.join(' ')} #{new_resource.domain_name}", false)
     command_string << replace_in_domain_file("%%%CPU_NODE_COUNT%%%", node['cpu'].size - 2)
     command_string << replace_in_domain_file("%%%MAX_PERM_SIZE%%%", new_resource.max_perm_size)
     command_string << replace_in_domain_file("%%%MAX_STACK_SIZE%%%", new_resource.max_stack_size)
@@ -282,6 +278,22 @@ action :create do
     action :delete
   end
 
+  # There is a bug in the Glassfish 4 domain creation that puts the master-password in the wrong spot. This copies it back.
+  #file "#{domain_dir_path}/master-password" do
+  ruby_block "copy master-password" do
+    source_file = "#{domain_dir_path}/config/master-password"
+    dest_file = "#{domain_dir_path}/master-password"
+
+    only_if { node['glassfish']['version'][0] == '4' }
+    only_if { ::File.exists?(source_file) }
+    not_if { ::File.exists?(dest_file) }
+
+    block do
+      FileUtils.cp(source_file, dest_file)
+      FileUtils.chown( new_resource.system_user, new_resource.system_group, dest_file)
+    end
+  end
+
   template "#{domain_dir_path}/config/logging.properties" do
     source "logging.properties.erb"
     mode "0400"
@@ -289,7 +301,7 @@ action :create do
     owner new_resource.system_user
     group new_resource.system_group
     variables(:logging_properties => default_logging_properties.merge(new_resource.logging_properties))
-    notifies :restart, "service[glassfish-#{new_resource.domain_name}]", :delayed
+    notifies :restart, service_resource_name, :delayed
   end
 
   template "#{domain_dir_path}/config/login.conf" do
@@ -299,27 +311,72 @@ action :create do
     owner new_resource.system_user
     group new_resource.system_group
     variables(:realm_types => default_realm_confs.merge(new_resource.realm_types))
-    notifies :restart, "service[glassfish-#{new_resource.domain_name}]", :delayed
+    notifies :restart, service_resource_name, :delayed
   end
 
-  service "glassfish-#{new_resource.domain_name}" do
-    action [:enable, :start]
+  if new_resource.init_style == 'upstart'
+    template "/etc/init/glassfish-#{new_resource.domain_name}.conf" do
+      case node['platform_family']
+      when "debian"
+        source "glassfish-upstart.conf.erb"
+      when "rhel"
+        source "glassfish-upstart-rhel.conf.erb"
+      end
+      mode "0644"
+      cookbook 'glassfish'
+
+      variables(:resource => new_resource, :args => args, :authbind => requires_authbind, :listen_ports => [new_resource.admin_port, new_resource.port])
+      notifies :restart, service_resource_name, :delayed
+    end
+
+    service service_name do
+      provider Chef::Provider::Service::Upstart
+      supports :start => true, :restart => true, :stop => true, :status => true
+      action [:enable, :start]
+    end
+  elsif new_resource.init_style == 'runit'
+    runit_service service_name do
+      default_logger true
+      check true
+      cookbook 'glassfish'
+      run_template_name 'glassfish'
+      check_script_template_name 'glassfish'
+      options(:resource => new_resource, :args => args, :authbind => requires_authbind, :listen_ports => [new_resource.admin_port, new_resource.port])
+      sv_timeout 100
+      action [:enable, :start]
+    end
+
+    bash "runit check" do
+      code "#{node["runit"]["sv_bin"]} -w '120' check #{node["runit"]["sv_dir"]}/#{service_name}"
+    end
+  else
+    raise "Unknown init style #{new_resource.init_style}"
   end
 end
 
 action :destroy do
-  service "glassfish-#{new_resource.domain_name}" do
-    provider Chef::Provider::Service::Upstart
-    action [:stop, :disable]
-    ignore_failure true
+  service_name = "glassfish-#{new_resource.domain_name}"
+  if new_resource.init_style == 'upstart'
+    service service_name do
+      provider Chef::Provider::Service::Upstart
+      action [:stop, :disable]
+      ignore_failure true
+    end
+
+    file "/etc/init/glassfish-#{new_resource.domain_name}.conf" do
+      action :delete
+    end
+  elsif new_resource.init_style == 'runit'
+    runit_service service_name do
+      ignore_failure true
+      action [:stop, :disable]
+    end
+  else
+    raise "Unknown init style #{new_resource.init_style}"
   end
 
   directory domain_dir_path do
     recursive true
-    action :delete
-  end
-
-  file "/etc/init/glassfish-#{new_resource.domain_name}.conf" do
     action :delete
   end
 end

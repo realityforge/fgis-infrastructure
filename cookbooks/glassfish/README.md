@@ -17,18 +17,20 @@ application domains and OpenMQ broker instances.
 * java
 * authbind
 * cutlery
+* runit (Recommended but not required)
 
 # Attributes
 
-* `node['glassfish']['user']` - GlassFish User: The user that GlassFish executes as. Defaults to `glassfish`.
-* `node['glassfish']['group']` - GlassFish Admin Group: The group allowed to manage GlassFish domains. Defaults to `glassfish-admin`.
-* `node['glassfish']['package_url']` - Package URL: The url to the GlassFish install package. Defaults to `http://dlc.sun.com.edgesuite.net/glassfish/#{version}/release/glassfish-#{version}.zip`.
-* `node['glassfish']['base_dir']` - GlassFish Base Directory: The base directory of the GlassFish install. Defaults to `/usr/local/glassfish`.
-* `node['glassfish']['domains_dir']` - GlassFish Domain Directory: The directory containing all the domain instance data and configuration. Defaults to `/srv/glassfish`.
-* `node['glassfish']['domains']` - GlassFish Domain Definitions: A map of domain definitions that drive the instantiation of a domain. Defaults to `Mash.new`.
-* `node['openmq']['extra_libraries']` - Extract libraries for the OpenMQ Broker: A list of URLs to jars that are added to brokers classpath. Defaults to `Mash.new`.
-* `node['openmq']['instances']` - GlassFish OpenMQ Broker Definitions: A map of broker definitions that drive the instantiation of a OpenMQ broker. Defaults to `Mash.new`.
-* `node['openmq']['var_home']` - GlassFish OpenMQ Broker Directory: The directory containing all the broker instance data and configuration. Defaults to `/var/omq`.
+* `node['glassfish']['user']` - GlassFish User: The user that GlassFish executes as. Defaults to `"glassfish"`.
+* `node['glassfish']['group']` - GlassFish Admin Group: The group allowed to manage GlassFish domains. Defaults to `"glassfish-admin"`.
+* `node['glassfish']['version']` - Version: The version of the GlassFish install package. Defaults to `"3.1.2.2"`.
+* `node['glassfish']['package_url']` - Package URL: The url to the GlassFish install package. Defaults to `"http://dlc.sun.com.edgesuite.net/glassfish/\#{node['glassfish']['version']}/release/glassfish-\#{node['glassfish']['version']}.zip"`.
+* `node['glassfish']['base_dir']` - GlassFish Base Directory: The base directory of the GlassFish install. Defaults to `"/usr/local/glassfish"`.
+* `node['glassfish']['domains_dir']` - GlassFish Domain Directory: The directory containing all the domain instance data and configuration. Defaults to `"/srv/glassfish"`.
+* `node['glassfish']['domains']` - GlassFish Domain Definitions: A map of domain definitions that drive the instantiation of a domain. Defaults to `"Mash.new"`.
+* `node['openmq']['extra_libraries']` - Extract libraries for the OpenMQ Broker: A list of URLs to jars that are added to brokers classpath. Defaults to `"Mash.new"`.
+* `node['openmq']['instances']` - GlassFish OpenMQ Broker Definitions: A map of broker definitions that drive the instantiation of a OpenMQ broker. Defaults to `"Mash.new"`.
+* `node['openmq']['var_home']` - GlassFish OpenMQ Broker Directory: The directory containing all the broker instance data and configuration. Defaults to `"/var/omq"`.
 
 # Recipes
 
@@ -42,6 +44,125 @@ application domains and OpenMQ broker instances.
 Configures 0 or more GlassFish domains using the glassfish/domains attribute.
 
 The `attribute_driven_domain` recipe interprets attributes on the node and defines the resources described in the attributes.
+
+A typical approach is to define the configuration for the entire application on the node and include the recipe.
+Another approach using a vagrant file is to set the json attribute such as;
+
+```ruby
+  chef.json = {
+        "java" => {
+            "install_flavor" => "oracle",
+            "jdk_version" => 7,
+            "oracle" => {
+                "accept_oracle_download_terms" => true
+            }
+        },
+        "glassfish" => {
+            "version" => "4.0.1",
+            "package_url" => "http://dlc.sun.com.edgesuite.net/glassfish/4.0.1/promoted/glassfish-4.0.1-b01.zip",
+            "base_dir" => "/usr/local/glassfish",
+            "domains_dir" => "/usr/local/glassfish/glassfish/domains",
+            "domains" => {
+                "myapp" => {
+                    "config" => {
+                        "min_memory" => 1024,
+                        "max_memory" => 1024,
+                        "max_perm_size" => 256,
+                        "port" => 7070,
+                        "admin_port" => 4848,
+                        "username" => "adminuser",
+                        "password" => "adminpw",
+                        "remote_access" => false,
+                        "secure" => false
+                    },
+                    'extra_libraries' => {
+                        'realm' => {
+                          'type' => 'common',
+                          'url' => 'https://s3.amazonaws.com/somebucket/lib/realm.jar',
+                          'requires_restart' => true
+                        },
+                        'jdbcdriver' => {
+                          'type' => 'common',
+                          'url' => 'https://s3.amazonaws.com/somebucket/lib/mysql-connector-java-5.1.25-bin.jar'
+                        },
+                        'encryption' => {
+                          'type' => 'common',
+                          'url' => 'https://s3.amazonaws.com/somebucket/lib/jasypt-1.9.0.jar'
+                        }
+                    },
+                    'jdbc_connection_pools' => {
+                        'RealmPool' => {
+                            'config' => {
+                                'datasourceclassname' => 'com.mysql.jdbc.jdbc2.optional.MysqlDataSource',
+                                'restype' => 'javax.sql.DataSource',
+                                'isconnectvalidatereq' => 'true',
+                                'validationmethod' => 'auto-commit',
+                                'ping' => 'true',
+                                'description' => 'Realm Pool',
+                                'properties' => {
+                                   'Instance' => "jdbc:mysql://devdb.somecompany.com:3306/realmdb",
+                                   'ServerName' => "devdb.somecompany.com",
+                                   'User' => 'realmuser',
+                                   'Password' => 'realmpw',
+                                   'PortNumber' => '3306',
+                                   'DatabaseName' => 'realmdb'
+                                }
+                            },
+                            'resources' => {
+                                'jdbc/Realm' => {
+                                    'description' => 'Resource for Realm Pool',
+                                }
+                            }
+                        },
+                        'AppPool' => {
+                            'config' => {
+                                'datasourceclassname' => 'com.mysql.jdbc.jdbc2.optional.MysqlDataSource',
+                                'restype' => 'javax.sql.DataSource',
+                                'isconnectvalidatereq' => 'true',
+                                'validationmethod' => 'auto-commit',
+                                'ping' => 'true',
+                                'description' => 'App Pool',
+                                'properties' => {
+                                  'Instance' => "jdbc:mysql://devdb.somecompany.com:3306/appdb",
+                                  'ServerName' => "devdb.somecompany.com",
+                                  'User' => 'appuser',
+                                  'Password' => 'apppw',
+                                  'PortNumber' => '3306',
+                                  'DatabaseName' => 'appdb'
+                                }
+                            },
+                            'resources' => {
+                                'jdbc/App' => {
+                                    'description' => 'Resource for App Pool',
+                                }
+                            }
+                        }
+                    },
+                    'realms' => {
+                        'custom-realm' => {
+                            'classname' => 'com.somecompany.realm.CustomRealm',
+                            'jaas-context' => 'customRealm',
+                            'properties' => {
+                                'jaas-context' => 'customRealm',
+                                'datasource' => 'jdbc/Realm',
+                                'groupQuery' => 'SELECT ...',
+                                'passwordQuery' => 'SELECT ...'
+                            }
+                         }
+                    },
+                    'realm_types' => {
+                        'customRealm' => 'com.somecompany.realm.CustomLoginModule'
+                    },
+                    'deployables' => {
+                        'myapp' => {
+                            'url' => 'https://s3.amazonaws.com/somebucket/apps/app.war',
+                            'context_root' => '/'
+                         }
+                    }
+                }
+            }
+        }
+```
 
 ## glassfish::attribute_driven_mq
 
@@ -74,6 +195,7 @@ Configures 0 or more GlassFish domains using search to generate the configuratio
 * [glassfish_javamail_resource](#glassfish_javamail_resource)
 * [glassfish_jdbc_connection_pool](#glassfish_jdbc_connection_pool)
 * [glassfish_jdbc_resource](#glassfish_jdbc_resource)
+* [glassfish_jms_resource](#glassfish_jms_resource)
 * [glassfish_library](#glassfish_library)
 * [glassfish_mq](#glassfish_mq) - Creates an OpenMQ message broker instance, creates an OS-level service and starts the service.
 * [glassfish_mq_destination](#glassfish_mq_destination) - Creates or deletes a queue or a topic in an OpenMQ message broker instance.
@@ -88,13 +210,13 @@ Configures 0 or more GlassFish domains using search to generate the configuratio
 ### Actions
 
 - create:  Default action.
-- delete: 
+- delete:
 
 ### Attribute Parameters
 
-- jndi_name: 
-- raname: 
-- restype: 
+- jndi_name:
+- raname:
+- restype:
 - enabled:  Defaults to <code>true</code>.
 - target:  Defaults to <code>"server"</code>.
 - classname:  Defaults to <code>nil</code>.
@@ -145,13 +267,13 @@ used when there is not yet a resource defined in this cookbook for executing an 
 ### Actions
 
 - create:  Default action.
-- delete: 
+- delete:
 
 ### Attribute Parameters
 
-- realm_name: 
+- realm_name:
 - target:  Defaults to <code>"server"</code>.
-- classname: 
+- classname:
 - jaas_context:  Defaults to <code>nil</code>.
 - assign_groups:  Defaults to <code>nil</code>.
 - properties:  Defaults to <code>{}</code>.
@@ -170,14 +292,14 @@ used when there is not yet a resource defined in this cookbook for executing an 
 ### Actions
 
 - create:  Default action.
-- delete: 
+- delete:
 
 ### Attribute Parameters
 
-- pool_name: 
+- pool_name:
 - description:  Defaults to <code>nil</code>.
-- raname: 
-- connectiondefinition: 
+- raname:
+- connectiondefinition:
 - steadypoolsize:  Defaults to <code>nil</code>.
 - maxpoolsize:  Defaults to <code>nil</code>.
 - maxwait:  Defaults to <code>nil</code>.
@@ -198,7 +320,7 @@ used when there is not yet a resource defined in this cookbook for executing an 
 - ping:  Defaults to <code>nil</code>.
 - pooling:  Defaults to <code>nil</code>.
 - properties:  Defaults to <code>{}</code>.
-- transactionsupport: 
+- transactionsupport:
 - domain_name: The name of the domain.
 - terse: Use terse output from the underlying asadmin. Defaults to <code>false</code>.
 - echo: If true, echo commands supplied to asadmin. Defaults to <code>true</code>.
@@ -214,12 +336,12 @@ used when there is not yet a resource defined in this cookbook for executing an 
 ### Actions
 
 - create:  Default action.
-- delete: 
+- delete:
 
 ### Attribute Parameters
 
-- resource_name: 
-- poolname: 
+- resource_name:
+- poolname:
 - enabled:  Defaults to <code>true</code>.
 - target:  Defaults to <code>"server"</code>.
 - objecttype:  Defaults to <code>nil</code>.
@@ -240,11 +362,11 @@ used when there is not yet a resource defined in this cookbook for executing an 
 ### Actions
 
 - create:  Default action.
-- delete: 
+- delete:
 
 ### Attribute Parameters
 
-- jndi_name: 
+- jndi_name:
 - target:  Defaults to <code>"server"</code>.
 - restype:  Defaults to <code>"java.lang.String"</code>.
 - factoryclass:  Defaults to <code>"org.glassfish.resources.custom.factory.PrimitivesAndStringFactory"</code>.
@@ -267,13 +389,13 @@ used when there is not yet a resource defined in this cookbook for executing an 
 ### Actions
 
 - deploy:  Default action.
-- disable: 
-- enable: 
-- undeploy: 
+- disable:
+- enable:
+- undeploy:
 
 ### Attribute Parameters
 
-- component_name: 
+- component_name:
 - version:  Defaults to <code>nil</code>.
 - target:  Defaults to <code>"server"</code>.
 - url:  Defaults to <code>nil</code>.
@@ -318,6 +440,7 @@ Creates a GlassFish application domain, creates an OS-level service and starts t
 - port: The port on which the HTTP service will bind. Defaults to <code>8080</code>.
 - admin_port: The port on which the web management console is bound. Defaults to <code>4848</code>.
 - extra_jvm_options: An array of extra arguments to pass the JVM. Defaults to <code>[]</code>.
+- java_agents: An array of javaagent arguments to pass the JVM. Defaults to <code>[]</code>.
 - env_variables: A hash of environment variables set when running the domain. Defaults to <code>{}</code>.
 - domain_name: The name of the domain.
 - terse: Use terse output from the underlying asadmin. Defaults to <code>false</code>.
@@ -330,6 +453,7 @@ Creates a GlassFish application domain, creates an OS-level service and starts t
 - realm_types: A map of names to realm implementation classes that is merged into the default realm types. Defaults to <code>{}</code>.
 - system_user: The user that the domain executes as. Defaults to `node['glassfish']['user']` if unset. Defaults to <code>nil</code>.
 - system_group: The group that the domain executes as. Defaults to `node['glassfish']['group']` if unset. Defaults to <code>nil</code>.
+- init_style: The init system used to run the service. Defaults to <code>"upstart"</code>.
 
 ### Examples
 
@@ -353,19 +477,19 @@ Creates a GlassFish application domain, creates an OS-level service and starts t
 ### Actions
 
 - create:  Default action.
-- delete: 
+- delete:
 
 ### Attribute Parameters
 
-- jndi_name: 
+- jndi_name:
 - target:  Defaults to <code>"server"</code>.
-- mailhost: 
-- mailuser: 
-- fromaddress: 
-- storeprotocol: 
-- storeprotocolclass: 
-- transprotocol: 
-- transprotocolclass: 
+- mailhost:
+- mailuser:
+- fromaddress:
+- storeprotocol:
+- storeprotocolclass:
+- transprotocol:
+- transprotocolclass:
 - debug:  Defaults to <code>nil</code>.
 - enabled:  Defaults to <code>true</code>.
 - description:  Defaults to <code>nil</code>.
@@ -385,11 +509,11 @@ Creates a GlassFish application domain, creates an OS-level service and starts t
 ### Actions
 
 - create:  Default action.
-- delete: 
+- delete:
 
 ### Attribute Parameters
 
-- pool_name: 
+- pool_name:
 - datasourceclassname:  Defaults to <code>nil</code>.
 - initsql:  Defaults to <code>nil</code>.
 - sqltracelisteners:  Defaults to <code>nil</code>.
@@ -426,8 +550,8 @@ Creates a GlassFish application domain, creates an OS-level service and starts t
 - description:  Defaults to <code>nil</code>.
 - properties:  Defaults to <code>{}</code>.
 - restype:  Defaults to <code>nil</code>.
-- isolationlevel: 
-- validationmethod: 
+- isolationlevel:
+- validationmethod:
 - domain_name: The name of the domain.
 - terse: Use terse output from the underlying asadmin. Defaults to <code>false</code>.
 - echo: If true, echo commands supplied to asadmin. Defaults to <code>true</code>.
@@ -443,14 +567,39 @@ Creates a GlassFish application domain, creates an OS-level service and starts t
 ### Actions
 
 - create:  Default action.
-- delete: 
+- delete:
 
 ### Attribute Parameters
 
-- resource_name: 
-- connectionpoolid: 
+- resource_name:
+- connectionpoolid:
 - enabled:  Defaults to <code>true</code>.
 - target:  Defaults to <code>"server"</code>.
+- description:  Defaults to <code>nil</code>.
+- properties:  Defaults to <code>{}</code>.
+- domain_name: The name of the domain.
+- terse: Use terse output from the underlying asadmin. Defaults to <code>false</code>.
+- echo: If true, echo commands supplied to asadmin. Defaults to <code>true</code>.
+- username: The username to use when communicating with the domain. Defaults to <code>nil</code>.
+- password_file: The file in which the password must be stored assigned to appropriate key. Defaults to <code>nil</code>.
+- secure: If true use SSL when communicating with the domain for administration. Defaults to <code>false</code>.
+- admin_port: The port on which the web management console is bound. Defaults to <code>4848</code>.
+- system_user: The user that the domain executes as. Defaults to `node['glassfish']['user']` if unset. Defaults to <code>nil</code>.
+- system_group: The group that the domain executes as. Defaults to `node['glassfish']['group']` if unset. Defaults to <code>nil</code>.
+
+## glassfish_jms_resource
+
+### Actions
+
+- create:  Default action.
+- delete:
+
+### Attribute Parameters
+
+- name:
+- target:  Defaults to <code>"server"</code>.
+- restype:  Defaults to <code>"javax.jms.Queue"</code>.
+- enabled:  Defaults to <code>true</code>.
 - description:  Defaults to <code>nil</code>.
 - properties:  Defaults to <code>{}</code>.
 - domain_name: The name of the domain.
@@ -468,13 +617,14 @@ Creates a GlassFish application domain, creates an OS-level service and starts t
 ### Actions
 
 - add:  Default action.
-- remove: 
+- remove:
 
 ### Attribute Parameters
 
-- url: 
+- url:
 - library_type:  Defaults to <code>"common"</code>.
 - upload:  Defaults to <code>true</code>.
+- requires_restart:  Defaults to <code>false</code>.
 - domain_name: The name of the domain.
 - terse: Use terse output from the underlying asadmin. Defaults to <code>false</code>.
 - echo: If true, echo commands supplied to asadmin. Defaults to <code>true</code>.
@@ -484,6 +634,7 @@ Creates a GlassFish application domain, creates an OS-level service and starts t
 - admin_port: The port on which the web management console is bound. Defaults to <code>4848</code>.
 - system_user: The user that the domain executes as. Defaults to `node['glassfish']['user']` if unset. Defaults to <code>nil</code>.
 - system_group: The group that the domain executes as. Defaults to `node['glassfish']['group']` if unset. Defaults to <code>nil</code>.
+- init_style: The init system used to run the service. Defaults to <code>"upstart"</code>.
 
 ## glassfish_mq
 
@@ -497,7 +648,7 @@ Creates an OpenMQ message broker instance, creates an OS-level service and start
 ### Attribute Parameters
 
 - max_memory: The amount of heap memory to allocate to the domain in MiB. Defaults to <code>512</code>.
-- max_stack_size: The amount of stack memory to allocate to the domain in KiB. Defaults to <code>128</code>.
+- max_stack_size: The amount of stack memory to allocate to the domain in KiB. Defaults to <code>250</code>.
 - instance: The name of the broker instance.
 - users: A map of users to passwords for interacting with the service. Defaults to <code>{}</code>.
 - access_control_rules: An access control list of patterns to users. Defaults to <code>{}</code>.
@@ -515,6 +666,7 @@ Creates an OpenMQ message broker instance, creates an OS-level service and start
 - stomp_port: The port on which the stomp service will bind. If not specified, no stomp service will execute. Defaults to <code>nil</code>.
 - system_user: The user that the domain executes as. Defaults to `node['glassfish']['user']` if unset. Defaults to <code>nil</code>.
 - system_group: The group that the domain executes as. Defaults to `node['glassfish']['group']` if unset. Defaults to <code>nil</code>.
+- init_style: The init system used to run the service. Defaults to <code>"upstart"</code>.
 
 ### Examples
 
@@ -603,8 +755,8 @@ Ensures that a OpenMQ message broker instance has had a chance to finish startin
 
 ### Attribute Parameters
 
-- key: 
-- value: 
+- key:
+- value:
 - domain_name: The name of the domain.
 - terse: Use terse output from the underlying asadmin. Defaults to <code>false</code>.
 - echo: If true, echo commands supplied to asadmin. Defaults to <code>true</code>.
@@ -620,11 +772,11 @@ Ensures that a OpenMQ message broker instance has had a chance to finish startin
 ### Actions
 
 - create:  Default action.
-- delete: 
+- delete:
 
 ### Attribute Parameters
 
-- resource_adapter_name: 
+- resource_adapter_name:
 - threadpoolid:  Defaults to <code>nil</code>.
 - objecttype:  Defaults to <code>nil</code>.
 - properties:  Defaults to <code>{}</code>.
@@ -658,6 +810,7 @@ Enable or disable secure admin flag on the GlassFish server which enables/disabl
 - admin_port: The port on which the web management console is bound. Defaults to <code>4848</code>.
 - system_user: The user that the domain executes as. Defaults to `node['glassfish']['user']` if unset. Defaults to <code>nil</code>.
 - system_group: The group that the domain executes as. Defaults to `node['glassfish']['group']` if unset. Defaults to <code>nil</code>.
+- init_style: The init system used to run the service. Defaults to <code>"upstart"</code>.
 
 ### Examples
 

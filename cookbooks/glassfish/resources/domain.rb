@@ -56,6 +56,8 @@ attribute :port, :kind_of => Integer, :default => 8080
 attribute :admin_port, :kind_of => Integer, :default => 4848
 #<> @attribute extra_jvm_options An array of extra arguments to pass the JVM.
 attribute :extra_jvm_options, :kind_of => Array, :default => []
+#<> @attribute java_agents An array of javaagent arguments to pass the JVM.
+attribute :java_agents, :kind_of => Array, :default => []
 #<> @attribute env_variables A hash of environment variables set when running the domain.
 attribute :env_variables, :kind_of => Hash, :default => {}
 
@@ -82,6 +84,9 @@ attribute :realm_types, :kind_of => Hash, :default => {}
 attribute :system_user, :kind_of => String, :default => nil
 #<> @attribute system_group The group that the domain executes as. Defaults to `node['glassfish']['group']` if unset.
 attribute :system_group, :kind_of => String, :default => nil
+
+#<> @attribute init_style The init system used to run the service.
+attribute :init_style, :equal_to => ['upstart', 'runit'], :default => 'upstart'
 
 default_action :create
 
