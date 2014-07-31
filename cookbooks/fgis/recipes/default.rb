@@ -35,5 +35,5 @@ include_recipe 'java::default'
 node.override['geoserver']['user'] = 'fgis2'
 node.override['geoserver']['group'] = 'fgis2'
 
-#include_recipe 'fgis::_glassfish'
-include_recipe 'fgis::_tomcat'
+include_recipe 'fgis::_glassfish'
+#include_recipe 'fgis::_tomcat'
