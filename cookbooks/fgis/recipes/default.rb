@@ -20,6 +20,10 @@ node.default['fgis']['database']['db_name'] = 'fgis_db'
 node.default['fgis']['database']['username'] = 'fgis'
 node.default['fgis']['database']['password'] = 'secret'
 
+node.override['java']['oracle']['accept_oracle_download_terms'] = true
+node.override['java']['install_flavor'] = 'oracle'
+node.override['java']['jdk_version'] = '7'
+
 include_recipe 'apt::default'
 
 node.override['locale']['lang'] = 'en_AU.UTF-8'
@@ -27,9 +31,6 @@ include_recipe 'locale::default'
 
 include_recipe 'fgis::_setup_database'
 
-node.override['java']['oracle']['accept_oracle_download_terms'] = true
-node.override['java']['install_flavor'] = 'oracle'
-node.override['java']['jdk_version'] = '7'
 include_recipe 'java::default'
 
 node.override['geoserver']['user'] = 'fgis2'
