@@ -37,7 +37,7 @@
   "cookbooks/glassfish": {
     "branch": "master",
     "remote": "master/braid/cookbooks/glassfish",
-    "revision": "887d27dfb110f53e4a1ae561ee88d3b43c8bbcdc",
+    "revision": "6a940abdedcad1520bdc29a7adc7206e69063f38",
     "squashed": true,
     "url": "git://github.com/realityforge/chef-glassfish.git"
   },
