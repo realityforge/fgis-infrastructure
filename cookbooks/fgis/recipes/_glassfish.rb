@@ -51,6 +51,11 @@ node.override['glassfish']['domains'][domain_name] =
         'maxqueuesize' => 256
       }
     },
+    'context_services' => {
+      'blah' => {
+        'description' => 'My Description'
+      }
+    },
     'jdbc_connection_pools' => {
       'GeoServerPool' => {
         'config' => {

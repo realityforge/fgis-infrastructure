@@ -372,6 +372,26 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - context_services"
+
+  if definition['context_services']
+    gf_sort(definition['context_services']).each_pair do |key, config|
+      glassfish_context_service key do
+        domain_name domain_key
+        admin_port admin_port if admin_port
+        username username if username
+        password_file password_file if password_file
+        secure secure if secure
+        system_user system_username if system_username
+        system_group system_group if system_group
+        enabled !!config['enabled']
+        contextinfoenabled !!config['contextinfoenabled']
+        contextinfo config['contextinfo'] if config['contextinfo']
+        description config['description'] if config['description']
+      end
+    end
+  end
+
   Chef::Log.info "Defining GlassFish Domain #{domain_key} - properties"
 
   if definition['properties']
@@ -1021,6 +1041,25 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing iiop-listeners #{existing}"
     unless definition['iiop-listeners'] && definition['iiop-listeners'][existing]
       Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing iiop-listener #{existing}"
+      glassfish_iiop_listener existing do
+        domain_name domain_key
+        admin_port admin_port if admin_port
+        username username if username
+        password_file password_file if password_file
+        secure secure if secure
+        system_user system_username if system_username
+        system_group system_group if system_group
+        action :delete
+      end
+    end
+  end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing context_services"
+  gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-context-services') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing context_services #{existing}"
+    default_context = 'concurrent/__defaultContextService'
+    unless definition['context_services'] && definition['context_services'][existing] || default_context == existing
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing context_services #{existing}"
       glassfish_iiop_listener existing do
         domain_name domain_key
         admin_port admin_port if admin_port
