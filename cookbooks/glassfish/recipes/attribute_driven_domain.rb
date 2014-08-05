@@ -1015,6 +1015,42 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
       end
     end
   end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing iiop-listeners"
+  gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-iiop-listeners') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing iiop-listeners #{existing}"
+    unless definition['iiop-listeners'] && definition['iiop-listeners'][existing]
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing iiop-listener #{existing}"
+      glassfish_iiop_listener existing do
+        domain_name domain_key
+        admin_port admin_port if admin_port
+        username username if username
+        password_file password_file if password_file
+        secure secure if secure
+        system_user system_username if system_username
+        system_group system_group if system_group
+        action :delete
+      end
+    end
+  end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing thread pools"
+  gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-thread-pools') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing thread-pools #{existing}"
+    unless definition['thread-pools'] && definition['thread-pools'][existing]
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing thread-pool #{existing}"
+      glassfish_thread_pool existing do
+        domain_name domain_key
+        admin_port admin_port if admin_port
+        username username if username
+        password_file password_file if password_file
+        secure secure if secure
+        system_user system_username if system_username
+        system_group system_group if system_group
+        action :delete
+      end
+    end
+  end
   Chef::Log.info "Defining GlassFish Domain #{domain_key} - complete"
 end
 
