@@ -31,6 +31,7 @@ node.override['glassfish']['domains'][domain_name] =
     'extra_libraries' => {
       'postgresql' => 'http://jdbc.postgresql.org/download/postgresql-9.2-1002.jdbc4.jar'
     },
+    'iiop-listeners' => {},
     'threadpools' => {
       'thread-pool-1' => {
         'maxthreadpoolsize' => 200,
