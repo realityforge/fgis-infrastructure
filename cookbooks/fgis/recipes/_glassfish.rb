@@ -56,6 +56,12 @@ node.override['glassfish']['domains'][domain_name] =
         'description' => 'My Description'
       }
     },
+    'managed_thread_factories' => {
+      'concurrent/myThreadFactory' => {
+        'threadpriority' => 12,
+        'description' => 'My Thread Factory'
+      }
+    },
     'jdbc_connection_pools' => {
       'GeoServerPool' => {
         'config' => {

@@ -91,6 +91,17 @@ Another approach using a vagrant file is to set the json attribute such as;
                         'securityenabled' => false
                       }
                     },
+                    'context_services' => {
+                      'concurrent/MyAppContextService' => {
+                        'description' => 'My Apps ContextService'
+                      }
+                    },
+                    'managed_thread_factories' => {
+                      'concurrent/myThreadFactory' => {
+                        'threadpriority' => 12,
+                        'description' => 'My Thread Factory'
+                      }
+                    },
                     'jdbc_connection_pools' => {
                         'RealmPool' => {
                             'config' => {
@@ -384,10 +395,32 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
         secure secure if secure
         system_user system_username if system_username
         system_group system_group if system_group
-        enabled !!config['enabled']
-        contextinfoenabled !!config['contextinfoenabled']
+        enabled config['enabled'] unless config['enabled'].nil?
+        contextinfoenabled config['contextinfoenabled'] unless config['contextinfoenabled'].nil?
         contextinfo config['contextinfo'] if config['contextinfo']
         description config['description'] if config['description']
+      end
+    end
+  end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - managed_thread_factories"
+
+  if definition['managed_thread_factories']
+    gf_sort(definition['managed_thread_factories']).each_pair do |key, config|
+      glassfish_managed_thread_factory key do
+        domain_name domain_key
+        admin_port admin_port if admin_port
+        username username if username
+        password_file password_file if password_file
+        secure secure if secure
+        system_user system_username if system_username
+        system_group system_group if system_group
+
+        enabled config['enabled'] unless config['enabled'].nil?
+        contextinfoenabled config['contextinfoenabled'] unless config['contextinfoenabled'].nil?
+        contextinfo config['contextinfo'] if config['contextinfo']
+        description config['description'] if config['description']
+        threadpriority config['threadpriority'] if config['threadpriority']
       end
     end
   end
@@ -1054,13 +1087,32 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     end
   end
 
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing managed_thread_factories"
+  gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-managed-thread-factories') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing managed_thread_factories #{existing}"
+    default_context = 'concurrent/__defaultManagedThreadFactory'
+    unless definition['managed_thread_factories'] && definition['managed_thread_factories'][existing] || default_context == existing
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing managed_thread_factories #{existing}"
+      glassfish_managed_thread_factory existing do
+        domain_name domain_key
+        admin_port admin_port if admin_port
+        username username if username
+        password_file password_file if password_file
+        secure secure if secure
+        system_user system_username if system_username
+        system_group system_group if system_group
+        action :delete
+      end
+    end
+  end
+
   Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing context_services"
   gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-context-services') do |existing|
     Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing context_services #{existing}"
     default_context = 'concurrent/__defaultContextService'
     unless definition['context_services'] && definition['context_services'][existing] || default_context == existing
       Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing context_services #{existing}"
-      glassfish_iiop_listener existing do
+      glassfish_context_service existing do
         domain_name domain_key
         admin_port admin_port if admin_port
         username username if username
