@@ -1,4 +1,10 @@
+## v0.2.8:
+
 ## v0.2.6:
+
+* Keep the latest 4 versions of file.
+* Delete the oldest versions rather than the earliest.
+* Avoid linking on windows at all until the link resource can correctly handle changes of the target.
 
 ## v0.2.4:
 
