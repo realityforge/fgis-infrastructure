@@ -1,4 +1,11 @@
+## v0.6.0:
+* Change  : Default to installing GlassFish 4.0.
+
 ## v0.5.30:
+* Enhance : Add thread_pool LWRP to manage the thread-pools within GlassFish.
+            Ensure it is correctly called attribute_driven_domain recipe.
+* Bug     : Only delete the index.html in docroot during install, not
+            every converge.
 * Enhance : Recursively create omq runtime directory.
 * Enhance : Ensure auth_realm properties are updated if changed after initial
             creation.
@@ -7,7 +14,7 @@
 * Enhance : Support using 'root' as the system user. Submitted By Mike Thomas.
 * Enhance : Improve mechanism for accessing version to be portable to older
             versions of ruby. Submitted By Mike Thomas.
-* Enhance : Improve documentation for the attribtue driven recipe. Submitted
+* Enhance : Improve documentation for the attribute driven recipe. Submitted
             by Mike Thomas.
 * Enhance : Support `requires_restart` parameter on the glassfish_library
             LWRP. Submitted by Mike Thomas.

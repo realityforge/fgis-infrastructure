@@ -21,16 +21,16 @@ application domains and OpenMQ broker instances.
 
 # Attributes
 
-* `node['glassfish']['user']` - GlassFish User: The user that GlassFish executes as. Defaults to `"glassfish"`.
-* `node['glassfish']['group']` - GlassFish Admin Group: The group allowed to manage GlassFish domains. Defaults to `"glassfish-admin"`.
-* `node['glassfish']['version']` - Version: The version of the GlassFish install package. Defaults to `"3.1.2.2"`.
-* `node['glassfish']['package_url']` - Package URL: The url to the GlassFish install package. Defaults to `"http://dlc.sun.com.edgesuite.net/glassfish/\#{node['glassfish']['version']}/release/glassfish-\#{node['glassfish']['version']}.zip"`.
-* `node['glassfish']['base_dir']` - GlassFish Base Directory: The base directory of the GlassFish install. Defaults to `"/usr/local/glassfish"`.
-* `node['glassfish']['domains_dir']` - GlassFish Domain Directory: The directory containing all the domain instance data and configuration. Defaults to `"/srv/glassfish"`.
-* `node['glassfish']['domains']` - GlassFish Domain Definitions: A map of domain definitions that drive the instantiation of a domain. Defaults to `"Mash.new"`.
-* `node['openmq']['extra_libraries']` - Extract libraries for the OpenMQ Broker: A list of URLs to jars that are added to brokers classpath. Defaults to `"Mash.new"`.
-* `node['openmq']['instances']` - GlassFish OpenMQ Broker Definitions: A map of broker definitions that drive the instantiation of a OpenMQ broker. Defaults to `"Mash.new"`.
-* `node['openmq']['var_home']` - GlassFish OpenMQ Broker Directory: The directory containing all the broker instance data and configuration. Defaults to `"/var/omq"`.
+* `node['glassfish']['user']` - GlassFish User: The user that GlassFish executes as. Defaults to `glassfish`.
+* `node['glassfish']['group']` - GlassFish Admin Group: The group allowed to manage GlassFish domains. Defaults to `glassfish-admin`.
+* `node['glassfish']['version']` - Version: The version of the GlassFish install package. Defaults to `4.0`.
+* `node['glassfish']['package_url']` - Package URL: The url to the GlassFish install package. Defaults to `http://dlc.sun.com.edgesuite.net/glassfish/#{node['glassfish']['version']}/release/glassfish-#{node['glassfish']['version']}.zip`.
+* `node['glassfish']['base_dir']` - GlassFish Base Directory: The base directory of the GlassFish install. Defaults to `/usr/local/glassfish`.
+* `node['glassfish']['domains_dir']` - GlassFish Domain Directory: The directory containing all the domain instance data and configuration. Defaults to `/srv/glassfish`.
+* `node['glassfish']['domains']` - GlassFish Domain Definitions: A map of domain definitions that drive the instantiation of a domain. Defaults to `Mash.new`.
+* `node['openmq']['extra_libraries']` - Extract libraries for the OpenMQ Broker: A list of URLs to jars that are added to brokers classpath. Defaults to `Mash.new`.
+* `node['openmq']['instances']` - GlassFish OpenMQ Broker Definitions: A map of broker definitions that drive the instantiation of a OpenMQ broker. Defaults to `Mash.new`.
+* `node['openmq']['var_home']` - GlassFish OpenMQ Broker Directory: The directory containing all the broker instance data and configuration. Defaults to `/var/omq`.
 
 # Recipes
 
@@ -89,6 +89,25 @@ Another approach using a vagrant file is to set the json attribute such as;
                           'type' => 'common',
                           'url' => 'https://s3.amazonaws.com/somebucket/lib/jasypt-1.9.0.jar'
                         }
+                    },
+                    'threadpools' => {
+                      'thread-pool-1' => {
+                        'maxthreadpoolsize' => 200,
+                        'minthreadpoolsize' => 5,
+                        'idletimeout' => 900,
+                        'maxqueuesize' => 4096
+                      },
+                      'http-thread-pool' => {
+                        'maxthreadpoolsize' => 200,
+                        'minthreadpoolsize' => 5,
+                        'idletimeout' => 900,
+                        'maxqueuesize' => 4096
+                      },
+                      'admin-pool' => {
+                        'maxthreadpoolsize' => 50,
+                        'minthreadpoolsize' => 5,
+                        'maxqueuesize' => 256
+                      }
                     },
                     'jdbc_connection_pools' => {
                         'RealmPool' => {
@@ -203,6 +222,7 @@ Configures 0 or more GlassFish domains using search to generate the configuratio
 * [glassfish_property](#glassfish_property)
 * [glassfish_resource_adapter](#glassfish_resource_adapter)
 * [glassfish_secure_admin](#glassfish_secure_admin) - Enable or disable secure admin flag on the GlassFish server which enables/disables remote administration.
+* [glassfish_thread_pool](#glassfish_thread_pool)
 * [glassfish_web_env_entry](#glassfish_web_env_entry) - Set a value that can be retrieved as a `web env entry` in a particular web application.
 
 ## glassfish_admin_object
@@ -817,6 +837,32 @@ Enable or disable secure admin flag on the GlassFish server which enables/disabl
     glassfish_secure_admin "My Domain Remote Access" do
        action :enable
     end
+
+## glassfish_thread_pool
+
+### Actions
+
+- create:  Default action.
+- delete:
+
+### Attribute Parameters
+
+- threadpool_id:
+- target:  Defaults to <code>"server"</code>.
+- maxthreadpoolsize: Specifies the maximum number of threads the pool can contain. Defaults to <code>5</code>.
+- minthreadpoolsize: Specifies the minimum number of threads in the pool. These are created when the thread pool is instantiated. Defaults to <code>2</code>.
+- idletimeout: Specifies the amount of time in seconds after which idle threads are removed from the pool. Defaults to <code>900</code>.
+- maxqueuesize: Specifies the maximum number of messages that can be queued until threads are available to process them for a network listener or IIOP listener. A value of -1 specifies no limit. Defaults to <code>4096</code>.
+- domain_name: The name of the domain.
+- terse: Use terse output from the underlying asadmin. Defaults to <code>false</code>.
+- echo: If true, echo commands supplied to asadmin. Defaults to <code>true</code>.
+- username: The username to use when communicating with the domain. Defaults to <code>nil</code>.
+- password_file: The file in which the password must be stored assigned to appropriate key. Defaults to <code>nil</code>.
+- secure: If true use SSL when communicating with the domain for administration. Defaults to <code>false</code>.
+- admin_port: The port on which the web management console is bound. Defaults to <code>4848</code>.
+- system_user: The user that the domain executes as. Defaults to `node['glassfish']['user']` if unset. Defaults to <code>nil</code>.
+- system_group: The group that the domain executes as. Defaults to `node['glassfish']['group']` if unset. Defaults to <code>nil</code>.
+- init_style: The init system used to run the service. Defaults to <code>"upstart"</code>.
 
 ## glassfish_web_env_entry
 
