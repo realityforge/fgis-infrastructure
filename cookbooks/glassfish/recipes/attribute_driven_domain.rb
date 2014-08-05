@@ -102,6 +102,12 @@ Another approach using a vagrant file is to set the json attribute such as;
                         'description' => 'My Thread Factory'
                       }
                     },
+                    'managed_executor_services' => {
+                      'concurrent/myExecutorService' => {
+                        'threadpriority' => 12,
+                        'description' => 'My Executor Service'
+                      }
+                    },
                     'jdbc_connection_pools' => {
                         'RealmPool' => {
                             'config' => {
@@ -421,6 +427,35 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
         contextinfo config['contextinfo'] if config['contextinfo']
         description config['description'] if config['description']
         threadpriority config['threadpriority'] if config['threadpriority']
+      end
+    end
+  end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - managed_executor_services"
+
+  if definition['managed_executor_services']
+    gf_sort(definition['managed_executor_services']).each_pair do |key, config|
+      glassfish_managed_executor_service key do
+        domain_name domain_key
+        admin_port admin_port if admin_port
+        username username if username
+        password_file password_file if password_file
+        secure secure if secure
+        system_user system_username if system_username
+        system_group system_group if system_group
+
+        enabled config['enabled'] unless config['enabled'].nil?
+        contextinfoenabled config['contextinfoenabled'] unless config['contextinfoenabled'].nil?
+        contextinfo config['contextinfo'] if config['contextinfo']
+        description config['description'] if config['description']
+        threadpriority config['threadpriority'] if config['threadpriority']
+        threadpriority config['corepoolsize'] if config['corepoolsize']
+        threadpriority config['hungafterseconds'] if config['hungafterseconds']
+        threadpriority config['keepaliveseconds'] if config['keepaliveseconds']
+        threadpriority config['longrunningtasks'] if config['longrunningtasks']
+        threadpriority config['maximumpoolsize'] if config['maximumpoolsize']
+        threadpriority config['taskqueuecapacity'] if config['taskqueuecapacity']
+        threadpriority config['threadlifetimeseconds'] if config['threadlifetimeseconds']
       end
     end
   end
@@ -1075,6 +1110,25 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     unless definition['iiop_listeners'] && definition['iiop_listeners'][existing]
       Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing iiop-listener #{existing}"
       glassfish_iiop_listener existing do
+        domain_name domain_key
+        admin_port admin_port if admin_port
+        username username if username
+        password_file password_file if password_file
+        secure secure if secure
+        system_user system_username if system_username
+        system_group system_group if system_group
+        action :delete
+      end
+    end
+  end
+
+  Chef::Log.info "Defining GlassFish Domain #{domain_key} - checking existing managed_executor_services"
+  gf_scan_existing_resources(admin_port, username, password_file, secure, 'list-managed-executor-services') do |existing|
+    Chef::Log.info "Defining GlassFish Domain #{domain_key} - considering existing managed_executor_services #{existing}"
+    default_context = 'concurrent/__defaultManagedExecutorService'
+    unless definition['managed_executor_services'] && definition['managed_executor_services'][existing] || default_context == existing
+      Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing managed_executor_services #{existing}"
+      glassfish_managed_thread_factory existing do
         domain_name domain_key
         admin_port admin_port if admin_port
         username username if username
