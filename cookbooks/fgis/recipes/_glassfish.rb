@@ -51,23 +51,6 @@ node.override['glassfish']['domains'][domain_name] =
         'maxqueuesize' => 256
       }
     },
-    'context_services' => {
-      'blah' => {
-        'description' => 'My Description'
-      }
-    },
-    'managed_thread_factories' => {
-      'concurrent/myThreadFactory' => {
-        'threadpriority' => 12,
-        'description' => 'My Thread Factory'
-      }
-    },
-    'managed_executor_services' => {
-      'concurrent/myExecutorService' => {
-        'threadpriority' => 12,
-        'description' => 'My Executor Service'
-      }
-    },
     'jdbc_connection_pools' => {
       'GeoServerPool' => {
         'config' => {
