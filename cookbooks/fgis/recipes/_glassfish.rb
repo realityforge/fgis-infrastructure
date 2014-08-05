@@ -31,6 +31,25 @@ node.override['glassfish']['domains'][domain_name] =
     'extra_libraries' => {
       'postgresql' => 'http://jdbc.postgresql.org/download/postgresql-9.2-1002.jdbc4.jar'
     },
+    'threadpools' => {
+      'thread-pool-1' => {
+        'maxthreadpoolsize' => 200,
+        'minthreadpoolsize' => 5,
+        'idletimeout' => 900,
+        'maxqueuesize' => 4096
+      },
+      'http-thread-pool' => {
+        'maxthreadpoolsize' => 5,
+        'minthreadpoolsize' => 5,
+        'idletimeout' => 900,
+        'maxqueuesize' => 4096
+      },
+      'admin-pool' => {
+        'maxthreadpoolsize' => 50,
+        'minthreadpoolsize' => 5,
+        'maxqueuesize' => 256
+      }
+    },
     'jdbc_connection_pools' => {
       'GeoServerPool' => {
         'config' => {
