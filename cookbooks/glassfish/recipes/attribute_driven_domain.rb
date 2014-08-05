@@ -1128,7 +1128,7 @@ gf_sort(node['glassfish']['domains']).each_pair do |domain_key, definition|
     default_context = 'concurrent/__defaultManagedExecutorService'
     unless definition['managed_executor_services'] && definition['managed_executor_services'][existing] || default_context == existing
       Chef::Log.info "Defining GlassFish Domain #{domain_key} - removing existing managed_executor_services #{existing}"
-      glassfish_managed_thread_factory existing do
+      glassfish_managed_executor_service existing do
         domain_name domain_key
         admin_port admin_port if admin_port
         username username if username
